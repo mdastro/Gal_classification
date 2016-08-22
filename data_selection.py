@@ -23,6 +23,6 @@ new_mag_abs_r   = mag_abs_r[index]
 new_redshift    = redshift[index]
 
 np.savetxt('/home/mldantas/Dropbox/Clustering/dataset_clustering_abs.csv',
-               np.column_stack((new_identifiers, new_mjd, new_plate, new_fiberid, new_redshift, new_mag_abs_r, new_mag_apa_r)),
-               fmt=",%d,%d,%d,%.4f,%.4f,%.4f", delimiter=',', newline='\n',
-               header='identifiers,mjd,plate,fiberid,redshift,mag_absolute_petro_r, mag_obs_petro_r')
+               np.column_stack((new_mjd, new_plate, new_fiberid, new_redshift, new_mag_abs_r, new_mag_apa_r)),
+               fmt="%d,%d,%d,%.4f,%.4f,%.4f", delimiter=',', newline='\n',
+               header='mjd,plate,fiberid,redshift,mag_absolute_petro_r, mag_obs_petro_r')
