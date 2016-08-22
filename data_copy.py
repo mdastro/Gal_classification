@@ -7,7 +7,7 @@ mjd     = my_data[:, 1].astype(int)
 plate   = my_data[:, 0].astype(int)
 fiberid = my_data[:, 2].astype(int)
 
-filelist_path       = '/media/mldantas/SAMSUNG/LinuxBackupIAG/Documentos/Clustering/filelist.txt'
+filelist_path       = '/media/mldantas/SAMSUNG/LinuxBackupIAG/Documentos/Clustering/filelist_incomplete.txt'
 spec_file_path      = '/media/mldantas/SAMSUNG/LinuxBackupIAG/Documentos/Clustering/DATABASE'
 spec_file_selection = '/home/mldantas/Documents/Clustering/DATASET_selected'
 
@@ -35,4 +35,4 @@ for spec_file in filelist:
 
         selected_object = np.loadtxt(os.path.join(spec_file_path, spec_file))
 
-        np.savetxt(os.path.join(spec_file_selection, basename+'.txt'), selected_object, fmt="%d,%.4f,%.4f,%d")
+        np.savetxt(os.path.join(spec_file_selection, basename+'.csv'), selected_object, fmt="%d,%.4f,%.4f,%d")
