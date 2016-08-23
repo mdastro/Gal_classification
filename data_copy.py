@@ -3,8 +3,8 @@ import os
 
 my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/dataset_clustering_abs.csv', delimiter=',', dtype=str)
 
-mjd     = my_data[:, 1].astype(int)
-plate   = my_data[:, 0].astype(int)
+mjd     = my_data[:, 0].astype(int)
+plate   = my_data[:, 1].astype(int)
 fiberid = my_data[:, 2].astype(int)
 
 filelist_path       = '/media/mldantas/SAMSUNG/LinuxBackupIAG/Documentos/Clustering/filelist_incomplete.txt'
