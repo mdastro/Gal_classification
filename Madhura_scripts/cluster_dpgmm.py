@@ -2,6 +2,7 @@ from numpy import log10, float, linspace
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.mixture import DPGMM
 
 data = pd.read_csv('../Dataset/clean_data.csv')
 print data
@@ -10,6 +11,8 @@ print data
 toclean = ["H_beta", "OIII"]
 for feat in toclean:
     data = data[data[feat] > -900]
+data = data[data["vd_oiii"]>0]
+data = data[data["vd_nii"]>0]
 
 # ratios
 data["log10([OIII]/H_beta)"]  = log10(data["OIII"]/data["H_beta"])
@@ -19,15 +22,14 @@ data.rename(columns={"dn4000_synth":"4000 Angstrom break"}, inplace=True)
 
 # subset
 #subset = ["EW_H_alpha", "log10([OIII]/H_beta)", "log10([NII]/H_alpha)", "dn4000_synth"]
-subset = ["log10(EWidth H_alpha)", "log10([OIII]/H_beta)", "4000 Angstrom break"]
+subset = ["log10(EWidth H_alpha)", "log10([OIII]/H_beta)", "4000 Angstrom break", "vd_oiii", "vd_nii"]
 data = data[subset]
 print data
 
 # clustering
 n_components = 3
 print "Beginning clustering ..."
-from sklearn.mixture import DPGMM
-dpgmm = DPGMM(n_components=n_components)
+dpgmm = DPGMM(n_components=n_components, covariance_type='full', alpha=80.)
 dpgmm.fit(data)
 labels = dpgmm.predict(data)
 print labels
@@ -43,8 +45,10 @@ colors = labels.astype(float)
 #print('Estimated number of clusters: %d' % n_clusters)
 
 # plot
-xax = "4000 Angstrom break"
-yax = "log10(EWidth H_alpha)"
+xax = "vd_oiii"
+#yax = "4000 Angstrom break"
+#yax = "log10(EWidth H_alpha)"
+yax = "log10([OIII]/H_beta)"
 plt.figure(1)
 plt.scatter(data[xax], data[yax], c=colors, s=2, edgecolors='none')
 plt.title("DPGMM clustering on %i dimensions"%(len(subset)))
