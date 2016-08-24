@@ -18,7 +18,8 @@ data["log10(EW Halpha)"]     = log10(data["EW_H_alpha"])
 data.rename(columns={"dn4000_synth":"4000 Angstrom break"}, inplace=True)
 
 # subset
-subset = ["log10(EW Halpha)", "log10([OIII]/H_beta)", "log10([NII]/H_alpha)", "4000 Angstrom break"]
+#subset = ["log10(EW Halpha)", "log10([OIII]/H_beta)", "log10([NII]/H_alpha)", "4000 Angstrom break", "vd_Halpha", "vd_Hbeta", "vd_nii", "vd_oiii"]
+subset = ["log10(EW Halpha)", "log10([OIII]/H_beta)", "log10([NII]/H_alpha)", "4000 Angstrom break", "vd_oiii"]
 data = data[subset]
 print data
 
