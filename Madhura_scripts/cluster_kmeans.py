@@ -31,6 +31,8 @@ km = KMeans(n_clusters=n_clusters, max_iter=300, n_init=12, init="random")
 km.fit(data)
 labels = km.predict(data)
 print labels.astype(float)
+colors = labels.astype(float)
+
 xax = "4000 Angstrom break"
 yax = "log10(EWidth H_alpha)"
 plt.figure(1)
