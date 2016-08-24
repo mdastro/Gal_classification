@@ -2,6 +2,7 @@ from numpy import log10, float
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.cluster import DBSCAN
 
 data = pd.read_csv('../Dataset/clean_data.csv')
 print data
@@ -25,8 +26,7 @@ print data
 
 # clustering
 print "Beginning clustering ..."
-from sklearn.cluster import DBSCAN
-db = DBSCAN(eps=0.4, min_samples=8).fit(data)
+db = DBSCAN(eps=0.2, min_samples=100).fit(data)
 print "... finished clustering"
 labels = db.labels_
 print labels.astype(float)
