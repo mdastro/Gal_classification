@@ -35,7 +35,7 @@ print data
 
 # clustering
 print "Beginning clustering ..."
-dpgmm = DPGMM(n_components=4, covariance_type='full', alpha=100., tol=1.e-4, verbose=2)
+dpgmm = DPGMM(n_components=4, covariance_type='full', alpha=100., tol=1.e-4, n_iter=20, verbose=2)
 labels = dpgmm.fit_predict(data)
 print "... finished clustering"
 
