@@ -1,14 +1,13 @@
-from numpy import log10, linspace
+from numpy import log10, float, linspace
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.mixture import GMM
 
 data = pd.read_csv('../Dataset/clean_data.csv')
-print data
 
 use_vdoiii = False
-use_4000A  = True # otherwise NII/H_alpha
+use_4000A  = False # otherwise NII/H_alpha
 
 # clean further
 if use_vdoiii:
@@ -53,7 +52,8 @@ for n_comp in range(2,4):
     bic = gmm.bic(data)
     print "BIC = %f"%bic
 
-    colors = plt.cm.rainbow
+    #colors = plt.cm.rainbow
+    colors = plt.cm.viridis
 
     # plot
     f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15,5))
@@ -68,7 +68,12 @@ for n_comp in range(2,4):
         x_axis = "log10([NII]/H_alpha)"
     ax1.set_xlabel(x_axis)
     ax1.set_ylabel(y_axis)
-    ax1.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
+    for i in unique_labels:
+        data_plot = data[labels==i]
+        start = float(i)*2.95/(n_unique)
+        cmap = sns.cubehelix_palette(8, start=start, as_cmap=True)
+        sns.kdeplot(data_plot[x_axis], data_plot[y_axis], cmap=cmap, shade=True, shade_lowest=False, ax=ax1)
+    #ax1.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
 
 
     if use_4000A:
@@ -80,7 +85,12 @@ for n_comp in range(2,4):
     y_axis = "log10([OIII]/H_beta)"
     ax2.set_xlabel(x_axis)
     ax2.set_ylabel(y_axis)
-    ax2.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
+    for i in unique_labels:
+        data_plot = data[labels==i]
+        start = float(i)*2.9/(n_unique)
+        cmap = sns.cubehelix_palette(8, start=start, as_cmap=True)
+        sns.kdeplot(data_plot[x_axis], data_plot[y_axis], cmap=cmap, shade=True, shade_lowest=False, ax=ax2)
+    #ax2.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
     if not use_4000A:
         [xleft, xright] = ax2.get_xlim()
         kauffman_x = linspace(xleft, min(-0.2,xright), 20)
@@ -99,9 +109,14 @@ for n_comp in range(2,4):
         x_axis = "log10(EWidth H_alpha)"
     ax3.set_xlabel(x_axis)
     ax3.set_ylabel(y_axis)
-    ax3.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
+    for i in unique_labels:
+        data_plot = data[labels==i]
+        start = float(i)*2.9/(n_unique)
+        cmap = sns.cubehelix_palette(8, start=start, as_cmap=True)
+        sns.kdeplot(data_plot[x_axis], data_plot[y_axis], cmap=cmap, shade=True, shade_lowest=False, ax=ax3)
+    #ax3.scatter(data[x_axis], data[y_axis], c=labels, cmap=colors, s=2, edgecolors='none')
 
 
-    plt.savefig("cluster_GMM_nc%i_cd%i.png"%(n_comp,n_dim),format="png")
+    plt.savefig("cluster_GMM_nc%i_nd%i.pdf"%(n_comp,n_dim),format="pdf")
     plt.show()
     
