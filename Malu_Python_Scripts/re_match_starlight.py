@@ -4,10 +4,10 @@
 """
     Tables Match (my table with STARLIGHT SDSS DR7 tables) -- features needed for machine learning in order to classify
     galaxies
-    This version: added equivalent width of NII for the WHAN classification (see last column)
+    This version: added signal-to-noise in the end of the file
     @author:  Maria Luiza Linhares Dantas
     @date:    2016.26.08
-    @version: 0.0.1
+    @version: 0.0.3
 """
 
 from __future__ import division
@@ -20,7 +20,7 @@ if __name__ == '__main__':
     print ("Hey yo, let's go!")
 
     # Configuring the inputs -------------------------------------------------------------------------------------------
-    my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/learning_parameters_a.csv', delimiter=',', dtype=str)
+    my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/learning_parameters_b.csv', delimiter=',', dtype=str)
     print ("My Data Loaded!")
 
     lines_all = '/home/mldantas/Documents/STARLIGHT/Tabelas/Lines_all.txt'
@@ -45,8 +45,11 @@ if __name__ == '__main__':
     lines_all_ids = np.loadtxt(lines_all, usecols=[0], skiprows=1, dtype=str)
     print ("Teste: Lines ALL table works? Print object %s" % lines_all_ids[1])
 
-    lines_all_ew_nii = np.loadtxt(lines_all, usecols=[124], skiprows=1, dtype=float)
-    print ("EW NII read successfully!")
+    lines_all_sn_hb  = np.loadtxt(lines_all, usecols=[64], skiprows=1, dtype=float)
+    lines_all_sn_ha  = np.loadtxt(lines_all, usecols=[119], skiprows=1, dtype=float)
+    lines_all_sn_n2  = np.loadtxt(lines_all, usecols=[130], skiprows=1, dtype=float)
+    lines_all_sn_o3  = np.loadtxt(lines_all, usecols=[86], skiprows=1, dtype=float)
+    print ("S/N of the lines read successfully!")
 
 
     print ("Parameters input ok!")
@@ -79,11 +82,14 @@ if __name__ == '__main__':
             continue
         lines_all_data_index.append(m)
 
-    my_lines_all_ew_nii   = ['ew_nii']
     my_lines_all_plate    = lines_all_plate[lines_all_data_index]
     my_lines_all_mjd      = lines_all_mjd[lines_all_data_index]
     my_lines_all_fiberid  = lines_all_fiberid[lines_all_data_index]
-    my_lines_all_ew_nii   = lines_all_ew_nii[lines_all_data_index]
+    my_lines_all_sn_hb    = lines_all_sn_hb[lines_all_data_index]
+    my_lines_all_sn_ha    = lines_all_sn_ha[lines_all_data_index]
+    my_lines_all_sn_n2    = lines_all_sn_n2[lines_all_data_index]
+    my_lines_all_sn_o3    = lines_all_sn_o3[lines_all_data_index]
+
 
     my_dn4000_obs   = my_dictionary['dn4000_obs'].astype(float)
     my_dn4000_synth = my_dictionary['dn4000_synth'].astype(float)
@@ -100,17 +106,20 @@ if __name__ == '__main__':
     my_oii_3727     = my_dictionary['oii_3727'].astype(float)
     my_sii_6717     = my_dictionary['sii_6717'].astype(float)
     my_sii_6731     = my_dictionary['sii_6731'].astype(float)
+    my_ew_nii       = my_dictionary['ew_nii'].astype(float)
 
 
-    np.savetxt('/home/mldantas/Dropbox/Clustering/learning_parameters_b.csv',
+    np.savetxt('/home/mldantas/Dropbox/Clustering/learning_parameters_c.csv',
                np.column_stack((my_plate, my_mjd, my_fiberid, my_dn4000_obs, my_dn4000_synth, my_h_alpha, my_ew_h_alpha,
                             my_h_beta, my_oiii, my_nii, my_vd_h_alpha, my_vd_h_beta, my_vd_nii, my_vd_oiii, my_oi_6300,
-                                my_oii_3727, my_sii_6717, my_sii_6731, my_lines_all_ew_nii)),
-                       fmt = "%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
+                                my_oii_3727, my_sii_6717, my_sii_6731, my_ew_nii, my_lines_all_sn_ha,
+                                my_lines_all_sn_hb, my_lines_all_sn_n2, my_lines_all_sn_o3)),
+                       fmt = "%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,"
+                             "%.4f,%.4f,%.4f,%.4f",
                delimiter=',', newline='\n', header='plate,mjd,fiber_id,dn4000_obs,dn4000_synth,H_alpha,EW_H_alpha,'
                                                    'H_beta,OIII,NII,vd_Halpha,vd_Hbeta,vd_nii,vd_oiii,oi_6300,oii_3727,'
-                                                   'sii_6717,sii_6731,ew_nii')
+                                                   'sii_6717,sii_6731,ew_nii,sn_ha,sn_hb,sn_nii,sn_oiii')
 
-    
+
 
     print ("Lines ALL match ok!")
