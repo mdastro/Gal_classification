@@ -106,7 +106,7 @@ if __name__ == '__main__':
                np.column_stack((my_plate, my_mjd, my_fiberid, my_dn4000_obs, my_dn4000_synth, my_h_alpha, my_ew_h_alpha,
                             my_h_beta, my_oiii, my_nii, my_vd_h_alpha, my_vd_h_beta, my_vd_nii, my_vd_oiii, my_oi_6300,
                                 my_oii_3727, my_sii_6717, my_sii_6731, my_lines_all_ew_nii)),
-                       fmt = "%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
+                       fmt = "%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f",
                delimiter=',', newline='\n', header='plate,mjd,fiber_id,dn4000_obs,dn4000_synth,H_alpha,EW_H_alpha,'
                                                    'H_beta,OIII,NII,vd_Halpha,vd_Hbeta,vd_nii,vd_oiii,oi_6300,oii_3727,'
                                                    'sii_6717,sii_6731,ew_nii')
