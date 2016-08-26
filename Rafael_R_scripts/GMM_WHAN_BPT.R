@@ -7,7 +7,7 @@ AGN_high <- data.frame(log(AGN$NII/AGN$H_alpha,10),log(AGN$EW_H_alpha,10),
 test_index <- sample(seq_len(nrow(AGN_high)),replace=F, size = 15000)
 AGN_short <- AGN_high[test_index,]
 
-
+write.csv(AGN_short,"AGN_short_sample.csv",row.names = F)
 
 CLUST <- Mclust(AGN_short,G = 1:4)
 plot(CLUST)
