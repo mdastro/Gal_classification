@@ -1,9 +1,9 @@
 Generated from AGN.py
 
 Number of samples in raw data   = 138261
-Number of samples in clean data = 106732
-Difference                      =  31529
-Difference computed from raw    =  31529
+Number of samples in clean data =  35233
+Difference                      = 103028
+Difference computed from raw    = 103028
 
   Feature    Failed samples    Ratio
 ---------------------------------------
@@ -12,3 +12,7 @@ EW_H_alpha       12184         8.81%
     H_beta       24826        17.96%
       OIII       11359         8.22%
        NII       14789        10.70%
+   OI_6300       22138        16.01%
+  OII_3727       15268        11.04%
+  SII_6717       17080        12.35%
+  SII_6731       96178        69.56%
