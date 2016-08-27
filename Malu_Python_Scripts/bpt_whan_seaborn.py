@@ -3,9 +3,11 @@
 
 """
     This python program plots the BPT and WHAN diagrams using the SEABORN package.
+    This version: the dataset changed (including the format) and this program is now 
+    updated regarding the new format of the dataset.
     @author:  Maria Luiza Linhares Dantas
-    @date:    2016.23.08
-    @version: 0.0.1
+    @date:    2016.27.08
+    @version: 0.0.2
 """
 
 from __future__ import division
@@ -19,17 +21,22 @@ import matplotlib.pyplot as plt
 if __name__ == '__main__':
 
     # Configuring the inputs -------------------------------------------------------------------------------------------
-    my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/clean_data.csv', delimiter=',', dtype=str)
+    my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/clean_data_lines.csv', delimiter=',', dtype=str)
 
     my_dictionary = {}
     for i in range(len(my_data[0, :])):                                         # Converting numpy array into dictionary
         my_dictionary[my_data[0, i]] = np.array(my_data[0 + 1:, i], dtype=str)
 
-    my_nii        = my_dictionary['NII'].astype(float)
-    my_oiii       = my_dictionary['OIII'].astype(float)
-    my_h_alpha    = my_dictionary['H_alpha'].astype(float)
-    my_h_beta     = my_dictionary['H_beta'].astype(float)
-    my_ew_h_alpha = my_dictionary['EW_H_alpha'].astype(float)
+    bpt_x  = my_dictionary['xx_BPT'].astype(float)
+    bpt_y  = my_dictionary['yy_BPT'].astype(float)
+    whan_x = my_dictionary['xx_WHAN'].astype(float)
+    whan_y = my_dictionary['yy_WHAN'].astype(float)
+
+    # my_nii        = my_dictionary['NII'].astype(float)
+    # my_oiii       = my_dictionary['OIII'].astype(float)
+    # my_h_alpha    = my_dictionary['H_alpha'].astype(float)
+    # my_h_beta     = my_dictionary['H_beta'].astype(float)
+    # my_ew_h_alpha = my_dictionary['EW_H_alpha'].astype(float)
 
     ## BPT -------------------------------------------------------------------------------------------------------------
     xbpt_01 = np.linspace(-1.8, -0.1, 1000)
@@ -62,7 +69,7 @@ if __name__ == '__main__':
     schawinski_y = np.array(schawinski_y)
 
     # Plots ------------------------------------------------------------------------------------------------------------
-    index = np.where(np.log10(my_nii / my_h_alpha) != 0)
+    index = np.where(np.log10(bpt_x) != 0)
 
     # my_cool_palette = ['#00CED1', '#191970', '#FFA500', '#A020F0']
     # sns.palplot(sns.color_palette(my_cool_palette))
@@ -71,8 +78,8 @@ if __name__ == '__main__':
     # sns.palplot(sns.color_palette(my_cool_palette))
     # plot01  = plt.scatter(np.log10(my_nii/my_h_alpha)[index], np.log10(my_oiii/my_h_beta)[index], c='gray', alpha=0.2)
     cmap = sns.cubehelix_palette(8, rot=-.75, as_cmap=True)
-    sns.kdeplot(np.log10(my_nii/my_h_alpha)[index], np.log10(my_oiii/my_h_beta)[index], cmap=cmap, shade=True, cut=5)
-    plot02, = plt.plot(xbpt_01, ybpt_01, '--', color='#FF4500', linewidth=3.)
+    sns.kdeplot(bpt_x[index], bpt_y[index], cmap=cmap, shade=True, cut=5)
+    plot02, = plt.plot(xbpt_01, ybpt_01, '-.', color='#FF4500', linewidth=3.)
     plot03, = plt.plot(xbpt_02, ybpt_02, '-', color='#1E90FF', linewidth=3.)
     plot04, = plt.plot(schawinski_x, schawinski_y, '-', color='#FF1493', linewidth=3.)
     plot05, = plt.plot(xbpt_03, ybpt_03, '--', color='#6B8E23', linewidth=3.)
@@ -102,7 +109,7 @@ if __name__ == '__main__':
     plot02, = plt.plot([-0.4, -0.4], [3.5, 0.5], '-', color='#FF1493', linewidth=3.)
     plot03, = plt.plot([-0.4, 3.5], [0.78, 0.78], '-', color='#FF1493', linewidth=3.)
     cmap = sns.cubehelix_palette(8, rot=-.75, as_cmap=True)
-    sns.kdeplot(np.log10(my_nii / my_h_alpha)[index], np.log10(my_ew_h_alpha)[index], cmap=cmap, shade=True, cut=5)
+    sns.kdeplot(whan_x[index], whan_y[index], cmap=cmap, shade=True, cut=5)
     # plt.legend([plot01], [r"$\propto \, D_{n}4000_{synth}$ break"], numpoints=1, loc='lower left', fontsize=20)
     plt.axhline(y=+0.5, color='#FF1493', linewidth=2.)
     plt.xlabel(r"$\log ([NII]/H{\alpha})$", fontweight='bold', fontsize=30)
