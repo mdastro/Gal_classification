@@ -5,7 +5,7 @@ AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_c
 colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
                          "yy_WHAN", "EW_NII_WHAN", "class_WHAN")
 
-#write.csv(AGN,"class_WHAN_BPT.csv",row.names=F)
+write.csv(AGN,"class_WHAN_BPT.csv",row.names=F,quote=FALSE)
 
 test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
 AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
