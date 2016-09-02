@@ -1,5 +1,5 @@
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
-require(ggpubr);require(ggplot2)
+require(ggpubr);require(ggplot2);require(plotly)
 
 AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)
 colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
@@ -103,6 +103,18 @@ require(car)
 require(scatterplot3d)
 scatter3d(x,y,z, groups = as.factor(CLUST$classification),
           surface = FALSE)
+
+gcol<-as.factor(CLUST$classification)
+library(plyr)
+gcol<-revalue(gcol, c("1"="#66c2a5", "2"="#fc8d62","3"="green"))
+
+scatter3D(x, z, y,  pch = 16,colvar = as.integer(CLUST$classification),colkey = FALSE,col = c("#66c2a5","#fc8d62","#8da0cb"),
+          box = T,ticktype = "detailed",theta=10,phi=15,
+          zlab = "LogOIII_Hb",xlab="LogNII_Ha", d=30,
+          ylab="EWHa",bty = "u",col.panel = "gray95",col.grid = "gray35",contour = T)
+
+
+
 
 library(plotly)
 plot_ly(x = x, y = y, z = z, color  = as.factor(CLUST$classification),type = "scatter3d", mode = "markers") %>% 
