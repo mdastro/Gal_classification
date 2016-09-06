@@ -1,5 +1,6 @@
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
-require(ggpubr);require(ggplot2);require(plotly)
+require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
+require(ggpubr);library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D)
 
 AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)
 colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
@@ -12,7 +13,7 @@ AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 
 
 CLUST <- Mclust(AGN_short,G = 3)
-plot(CLUST)
+#plot(CLUST)
 
 
 
@@ -69,25 +70,68 @@ ggplot(data=gdata,aes(x=x,y=z))+geom_point(aes(color=type))+
  geom_hline(yintercept = 0.5,linetype="dashed",size=1.25,color="gray25")+
   geom_segment(aes(x = -0.4, y = 0.78, xend = 2, yend = 0.78),linetype="dashed",size=1.25,color="gray25")
 
-# Diagnostics
+# Diagnostics SI
 
 S1<-silhouette(CLUST$classification,daisy(AGN_short))
 
 S_BPT<-silhouette(AGN[test_index,]$class_BPT,daisy(AGN_short))
 
-
 S_WHAN<-silhouette(AGN[test_index,]$class_WHAN,daisy(AGN_short))
 
 
 
+# Boxplot
+d1 <-data.frame(Si=S1[,3],model=rep("GMM",nrow(S1)))
+d2<-data.frame(Si=S_BPT[,3],model=rep("BPT",nrow(S_BPT)))
+d3<-data.frame(Si=S_WHAN[,3],model=rep("WHAN",nrow(S_WHAN)))
+box_data <- rbind(d3,d2,d1)
+
+
+ggplot(box_data,aes(x=model,y=Si,fill=model))+geom_boxplot(notch = TRUE,outlier.colour = "gray70",outlier.shape = 1, outlier.size = 0.75)+
+  coord_cartesian(ylim=c(-0.525,.525))+ 
+  scale_fill_npg()+ylab("Silhouette")+xlab("Method")+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = -0.25),
+        text = element_text(size = 25,family="serif"))
+
+
+quartz.save(type = 'pdf', file = 'boxplot_SI.pdf',width = 11, height = 8)
+
+# External Validation
+
+class_BPT<- as.factor(AGN[test_index,]$class_BPT)
+class_BPT<-revalue(class_BPT, c("1"="SF", "2"="Composite","3" = "AGN"))
+
+
+P_BPT<-as.data.frame(table(class_BPT,CLUST$classification))
+
+
+
+ggplot(P_BPT, aes(class_BPT, Var2, fill=Freq)) + geom_tile()+xlab("BPT Class")+ylab("Cluster")+
+  geom_text(aes(fill = P_BPT$Freq, label = round(P_BPT$Freq, 1)))+
+  scale_fill_continuous_tableau()+theme_pubr()+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = -0.25),
+        text = element_text(size = 25,family="serif"))
+quartz.save(type = 'pdf', file = 'CM.pdf',width = 10, height = 10)
+
+
+
+stat_BPT<-cluster.stats(daisy(AGN_short), CLUST$classification, as.numeric(class_BPT))
 
 
 
 
-
-
-
-
+clust_stats <- cluster.stats(d = dist(AGN_short), 
+                             types, CLUST$classification)
 
 
 
@@ -95,19 +139,50 @@ S_WHAN<-silhouette(AGN[test_index,]$class_WHAN,daisy(AGN_short))
 
 # 3D plot
 
-x <-  AGN_short[,1]
-y <-  AGN_short[,2]
-z <-  AGN_short[,3]
+x <-  AGN_short[,3]
+y <-  AGN_short[,1]
+z <-  AGN_short[,2]
 
-require(car)
-require(scatterplot3d)
-scatter3d(x,y,z, groups = as.factor(CLUST$classification),
-          surface = FALSE)
 
-gcol<-as.factor(CLUST$classification)
-library(plyr)
-gcol<-revalue(gcol, c("1"="#66c2a5", "2"="#fc8d62","3"="green"))
 
+#gcol<-as.factor(CLUST$classification)
+#library(plyr)
+#gcol<-revalue(gcol, c("1"="#66c2a5", "2"="#fc8d62","3"="green"))
+
+
+scatter3D_fancy <- function(x, y, z,..., colvar = z,col=col,colkey=colkey,pch=".")
+{
+  panelfirst <- function(pmat) {
+    XY <- trans3D(x, y, z = rep(min(z), length(z)), pmat = pmat)
+    scatter2D(XY$x, XY$y,col=col, colvar = colvar, pch = ".", 
+              cex = 0.5, add = TRUE, colkey = FALSE)
+    
+    XY <- trans3D(x = rep(min(x), length(x)), y, z, pmat = pmat)
+    scatter2D(XY$x, XY$y,col=col, colvar = colvar, pch = ".", 
+              cex = 0.5, add = TRUE, colkey = FALSE)
+
+ }
+  scatter3D(x, y, z, ...,col=col, colvar = colvar, panel.first=panelfirst,
+            colkey = colkey,cex = 2.75,pch=pch) 
+}
+
+
+scatter3D_fancy(x, y, z,colvar = as.integer(CLUST$classification),col = c("#D46A6A","#D4B16A","#764B8E"),
+                colkey=F,
+                box = T,ticktype = "detailed",theta=40,phi=20,
+                zlab = "LogOIII_Hb",ylab="LogNII_Ha", d=20,
+                xlab="EWHa",bty = "u",col.panel = "gray95",col.grid = "gray35",contour = T)
+
+#text3D(1, 1, -2, labels = expression(theta[1]), add = TRUE, adj = 1)
+
+library("plot3Drgl")
+plotrgl()
+
+quartz.save(type = 'pdf', file = '3D_super.pdf',width = 11, height = 9)
+
+
+
+  
 scatter3D(x, z, y,  pch = 16,colvar = as.integer(CLUST$classification),colkey = FALSE,col = c("#66c2a5","#fc8d62","#8da0cb"),
           pch = ".",
           box = T,ticktype = "detailed",theta=10,phi=15,
@@ -116,6 +191,11 @@ scatter3D(x, z, y,  pch = 16,colvar = as.integer(CLUST$classification),colkey = 
 
 
 
+
+
+  
+  
+  
 
 library(plotly)
 plot_ly(x = x, y = y, z = z, color  = as.factor(CLUST$classification),type = "scatter3d", mode = "markers") %>% 
