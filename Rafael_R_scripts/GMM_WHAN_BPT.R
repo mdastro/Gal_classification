@@ -8,11 +8,11 @@ colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
 
 #write.csv(AGN,"class_WHAN_BPT.csv",row.names=F,quote=FALSE)
 
-test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
+test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 20000)
 AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 
-
-CLUST <- Mclust(AGN_short,G = 3)
+#initialization=list(subset=sample(1:nrow(df), size=M)
+CLUST <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)))
 #plot(CLUST)
 
 
@@ -87,7 +87,7 @@ d3<-data.frame(Si=S_WHAN[,3],model=rep("WHAN",nrow(S_WHAN)))
 box_data <- rbind(d3,d2,d1)
 
 
-ggplot(box_data,aes(x=model,y=Si,fill=model))+geom_boxplot(notch = TRUE,outlier.colour = "gray70",outlier.shape = 1, outlier.size = 0.75)+
+ggplot(box_data,aes(x=model,y=Si,fill=model))+geom_boxplot(outlier.colour = "gray70",outlier.shape = 1, outlier.size = 0.75)+
   coord_cartesian(ylim=c(-0.525,.525))+ 
   scale_fill_npg()+ylab("Silhouette")+xlab("Method")+
   theme(legend.background = element_rect(fill="white"),
@@ -97,6 +97,18 @@ ggplot(box_data,aes(x=model,y=Si,fill=model))+geom_boxplot(notch = TRUE,outlier.
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
         text = element_text(size = 25,family="serif"))
+
+
+ggviolin(box_data, x = "model", y = "Si",fill = "model",add = "boxplot",add.params = list(fill = "white"))+
+scale_fill_npg()+ylab("Silhouette")+xlab("Method")+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25,family="serif"))
+
 
 
 quartz.save(type = 'pdf', file = 'boxplot_SI.pdf',width = 11, height = 8)
@@ -172,6 +184,29 @@ scatter3D_fancy(x, y, z,colvar = as.integer(CLUST$classification),col = c("#D46A
                 box = T,ticktype = "detailed",theta=40,phi=20,
                 zlab = "LogOIII_Hb",ylab="LogNII_Ha", d=20,
                 xlab="EWHa",bty = "u",col.panel = "gray95",col.grid = "gray35",contour = T)
+
+quartz.save(type = 'pdf', file = '3D_super.pdf',width = 11, height = 9)
+
+#frames = 360
+
+#  for(i in 1:frames){
+  # creating a name for each plot file with leading zeros
+#  if (i < 10) {name = paste('000',i,'plot.png',sep='')}
+  
+#  if (i < 100 && i >= 10) {name = paste('00',i,'plot.png', sep='')}
+#  if (i >= 100) {name = paste('0', i,'plot.png', sep='')}
+#  ang = i
+  #saves the plot as a .png file in the working directory
+#  png(name)
+#  scatter3D_fancy(x, y, z,colvar = as.integer(CLUST$classification),col = c("#D46A6A","#D4B16A","#764B8E"),
+#                  colkey=F,
+#                  box = T,ticktype = "detailed",theta=ang,phi=20,
+#                  zlab = "LogOIII_Hb",ylab="LogNII_Ha", d=20,
+#                  xlab="EWHa",bty = "u",col.panel = "gray95",col.grid = "gray35",contour = T)
+#  dev.off()
+
+#}
+
 
 #text3D(1, 1, -2, labels = expression(theta[1]), add = TRUE, adj = 1)
 
