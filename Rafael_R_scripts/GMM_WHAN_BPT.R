@@ -12,7 +12,7 @@ test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 20000)
 AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 
 #initialization=list(subset=sample(1:nrow(df), size=M)
-CLUST <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)))
+CLUST <- Mclust(AGN_short,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)))
 #plot(CLUST)
 
 
