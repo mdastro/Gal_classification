@@ -17,7 +17,7 @@ CLUST <- Mclust(AGN_short,initialization=list(subset=sample(1:nrow(AGN_short), s
 
 CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
 
-fit<-entPlot(CLUSTCOMBI$MclustOutput$z, CLUSTCOMBI$combiM, reg =2)
+fit<-entPlot(CLUSTCOMBI$MclustOutput$z, CLUSTCOMBI$combiM, reg =2,abc = "standard")
 
 
 #plot(CLUST)
