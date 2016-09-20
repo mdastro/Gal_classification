@@ -34,18 +34,48 @@ ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linet
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
-        legend.position="none",
+        legend.position="top",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
         text = element_text(size = 25,family="serif"))
 
-# Number of Clusters via ICL 
-CLUST_ICL <- mclustICL(AGN_short,G = 1:5,initialization=list(subset=sample(1:nrow(AGN_short), size=2000)),
-                modelName = "VVV")
 
 # Shinkage of clusters via Entropy analysis, changepoint diagnostics 
-CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
-entPlot(CLUSTCOMBI$MclustOutput$z, CLUSTCOMBI$combiM, reg =2,abc = "standard")
+CLUST2 <- Mclust(AGN_short,G = 1:10,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                modelName = "VVV")
+CLUSTCOMBI <- clustCombi(AGN_short, CLUST2)
+source("xlog.R")
+source("pcws2_reg.R")
+
+# Extract data for Entropy plot using parts of the Mclust functions (sorry if look messy for now)
+zx<- CLUSTCOMBI$MclustOutput$z
+combiM <- CLUSTCOMBI$combiM
+
+ent <- numeric()
+Kmax <- ncol(zx)
+z0 <- zx
+for (K in Kmax:1) 
+{
+  z0 <- t(combiM[[K]] %*% t(z0))
+  ent[K] <- -sum(xlog(z0))
+}
+
+# Plot using ggplot2
+gent <-data.frame(x=as.factor(1:Kmax),y=ent)
+seg1 <- data.frame(x=1:pcwsreg$c,y=pcwsreg$a1*(1:pcwsreg$c) + pcwsreg$b1)
+seg2 <- data.frame(x=pcwsreg$c:Kmax,y=pcwsreg$a2*(pcwsreg$c:Kmax) + pcwsreg$b2)
+ggplot(gent,aes(x=x,y=y))+geom_point()+
+  geom_line(data=seg1,aes(x=x,y=y,color="red"))+
+  geom_line(data=seg2,aes(x=x,y=y,color="blue"))+
+  theme_pubr()+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = -0.25),
+        text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")
+  
 
 
 # Plot hierarchy of clusters 
