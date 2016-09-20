@@ -14,6 +14,19 @@ AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 #initialization=list(subset=sample(1:nrow(df), size=M)
 CLUST <- Mclust(AGN_short,G = 1:10,
           initialization=list(subset=sample(1:nrow(AGN_short), size=1000)))
+
+test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 60000)
+AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
+
+#initialization=list(subset=sample(1:nrow(df), size=M)
+CLUST <- Mclust(AGN_short,initialization=list(subset=sample(1:nrow(AGN_short), size=5000)),
+                modelName = "VVV")
+
+CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
+
+fit<-entPlot(CLUSTCOMBI$MclustOutput$z, CLUSTCOMBI$combiM, reg =2,abc = "standard")
+
+
 #plot(CLUST)
 CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
 plot(CLUSTCOMBI, AGN_short)
