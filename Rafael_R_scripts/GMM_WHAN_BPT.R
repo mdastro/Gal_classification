@@ -28,8 +28,16 @@ gBI<-data.frame(BIC=BIC,ICL=ICL,K=seq(2:10))
 ggdata<-melt(gBI,'K')
 ggdata$K<-as.factor(ggdata$K)
 
-ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable))+
-  geom_point()
+ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linetype=variable))+
+  geom_point()+theme_pubr()+scale_color_fivethirtyeight(name = "")+geom_line()+scale_shape_cleveland(name = "")+
+  scale_linetype_stata(name = "")+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = -0.25),
+        text = element_text(size = 25,family="serif"))
 
 # Number of Clusters via ICL 
 CLUST_ICL <- mclustICL(AGN_short,G = 1:5,initialization=list(subset=sample(1:nrow(AGN_short), size=2000)),
