@@ -8,6 +8,13 @@ colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
 
 #write.csv(AGN,"class_WHAN_BPT.csv",row.names=F,quote=FALSE)
 
+test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 40000)
+AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
+
+#initialization=list(subset=sample(1:nrow(df), size=M)
+CLUST <- Mclust(AGN_short,G = 1:10,
+          initialization=list(subset=sample(1:nrow(AGN_short), size=1000)))
+
 test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 60000)
 AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 
@@ -21,7 +28,8 @@ fit<-entPlot(CLUSTCOMBI$MclustOutput$z, CLUSTCOMBI$combiM, reg =2,abc = "standar
 
 
 #plot(CLUST)
-
+CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
+plot(CLUSTCOMBI, AGN_short)
 
 
 gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification))
@@ -161,12 +169,6 @@ clust_stats <- cluster.stats(d = dist(AGN_short),
 x <-  AGN_short[,3]
 y <-  AGN_short[,1]
 z <-  AGN_short[,2]
-
-
-
-#gcol<-as.factor(CLUST$classification)
-#library(plyr)
-#gcol<-revalue(gcol, c("1"="#66c2a5", "2"="#fc8d62","3"="green"))
 
 
 scatter3D_fancy <- function(x, y, z,..., colvar = z,col=col,colkey=colkey,pch=".")
