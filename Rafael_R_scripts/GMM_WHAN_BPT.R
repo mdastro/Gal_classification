@@ -47,7 +47,7 @@ CLUSTCOMBI <- clustCombi(AGN_short, CLUST2)
 source("xlog.R")
 source("pcws2_reg.R")
 
-# Extract data for Entropy plot using parts of the Mclust functions (sorry if look messy for now)
+# Extract data for Entropy plot using parts of the Mclust functions (sorry if look messy for now  )
 zx<- CLUSTCOMBI$MclustOutput$z
 combiM <- CLUSTCOMBI$combiM
 
@@ -64,9 +64,10 @@ for (K in Kmax:1)
 gent <-data.frame(x=as.factor(1:Kmax),y=ent)
 seg1 <- data.frame(x=1:pcwsreg$c,y=pcwsreg$a1*(1:pcwsreg$c) + pcwsreg$b1)
 seg2 <- data.frame(x=pcwsreg$c:Kmax,y=pcwsreg$a2*(pcwsreg$c:Kmax) + pcwsreg$b2)
-ggplot(gent,aes(x=x,y=y))+geom_point()+
-  geom_line(data=seg1,aes(x=x,y=y,color="red"))+
-  geom_line(data=seg2,aes(x=x,y=y,color="blue"))+
+ggplot(gent,aes(x=x,y=y))+
+  geom_point(aes(x=x,y=y),shape=24,size=2)+
+  geom_line(data=seg1,aes(x=x,y=y),color="red",linetype="dotdash",size=1)+
+  geom_line(data=seg2,aes(x=x,y=y),color="blue",linetype="dotted",size=1)+
   theme_pubr()+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
@@ -74,7 +75,9 @@ ggplot(gent,aes(x=x,y=y))+geom_point()+
         legend.position="none",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
-        text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")
+        text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")+
+  geom_segment(mapping=aes(x=4, y=-0.5, xend=4, yend=3500), arrow=arrow(), size=0.25, color="gray50")+
+  coord_cartesian(ylim=c(0.25,18000))
   
 
 
