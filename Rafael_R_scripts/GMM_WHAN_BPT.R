@@ -1,7 +1,12 @@
+#----------------------------------------------------------------##----------------------------------------------------------------#
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
 require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
-require(ggpubr);library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D)
+require(ggpubr);library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);require(rgl)
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
+
+
+#----------------------------------------------------------------##----------------------------------------------------------------#
 # Read and store data
 AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)
 colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
@@ -9,38 +14,44 @@ colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
 
 
 # Subsampling for testing, not necessary in the final run
-test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
-AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
+#test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
+AGN_short <- AGN[,c("xx_BPT", "yy_BPT","yy_WHAN")]
+rm(AGN)
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
-# Initialization with 1000 for higher speed
 
-# Number of Clusters via BIC and ICL
+#----------------------------------------------------------------##----------------------------------------------------------------#
+
+#--Number of Clusters via BIC and ICL----------------------------------------------------------------#
 BIC<-c()
 ICL<-c()
-for(i in 2:10){
-CLUST <- Mclust(AGN_short,G = i,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
-                modelName = "VVV")
-BIC <- append(BIC,CLUST$bic)
-ICL<-append(ICL,icl(CLUST))
-}
-gBI<-data.frame(BIC=BIC,ICL=ICL,K=seq(2:10))
 
+for(i in 1:10){
+CLUST <- Mclust(AGN_short,G = i,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                modelName = "VVV")#Initialization with 1000 for higher speed
+BIC <- append(BIC,CLUST$bic)
+ICL <- append(ICL,icl(CLUST))
+}
+
+
+gBI<-data.frame(BIC=BIC,ICL=ICL,K=seq(1:10))
 ggdata<-melt(gBI,'K')
 ggdata$K<-as.factor(ggdata$K)
 
-ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linetype=variable))+
-  geom_point()+theme_pubr()+scale_color_fivethirtyeight(name = "")+geom_line()+scale_shape_cleveland(name = "")+
+g1<-ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linetype=variable))+
+  geom_point()+theme_pubr()+scale_color_npg(name = "")+geom_line()+scale_shape_cleveland(name = "")+
   scale_linetype_stata(name = "")+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
-        legend.position="top",
+        legend.position=c(0.75,0.75),
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
-        text = element_text(size = 25,family="serif"))
+        text = element_text(size = 20,family="serif"))+ylab("Value")
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
-
-# Shinkage of clusters via Entropy analysis, changepoint diagnostics 
+#----------------------------------------------------------------##----------------------------------------------------------------#
+# Shinkage of clusters via Entropy analysis, changepoint diagnostics----------------------------------------------------------------#
 CLUST2 <- Mclust(AGN_short,G = 1:10,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                 modelName = "VVV")
 CLUSTCOMBI <- clustCombi(AGN_short, CLUST2)
@@ -59,15 +70,17 @@ for (K in Kmax:1)
   z0 <- t(combiM[[K]] %*% t(z0))
   ent[K] <- -sum(xlog(z0))
 }
-
+pcwsreg <- pcws2_reg(1:Kmax,ent)
 # Plot using ggplot2
+mypal = pal_npg("nrc", alpha = 0.7)(9)
+mypal
 gent <-data.frame(x=as.factor(1:Kmax),y=ent)
 seg1 <- data.frame(x=1:pcwsreg$c,y=pcwsreg$a1*(1:pcwsreg$c) + pcwsreg$b1)
 seg2 <- data.frame(x=pcwsreg$c:Kmax,y=pcwsreg$a2*(pcwsreg$c:Kmax) + pcwsreg$b2)
-ggplot(gent,aes(x=x,y=y))+
+g2<-ggplot(gent,aes(x=x,y=y))+
   geom_point(aes(x=x,y=y),shape=24,size=2)+
-  geom_line(data=seg1,aes(x=x,y=y),color="red",linetype="dotdash",size=1)+
-  geom_line(data=seg2,aes(x=x,y=y),color="blue",linetype="dotted",size=1)+
+  geom_line(data=seg1,aes(x=x,y=y),color=mypal[1],linetype="dotdash",size=1)+
+  geom_line(data=seg2,aes(x=x,y=y),color=mypal[2],linetype="dotted",size=1)+
   theme_pubr()+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
@@ -75,21 +88,28 @@ ggplot(gent,aes(x=x,y=y))+
         legend.position="none",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
-        text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")+
-  geom_segment(mapping=aes(x=4, y=-0.5, xend=4, yend=3500), arrow=arrow(), size=0.25, color="gray50")+
-  coord_cartesian(ylim=c(0.25,18000))
-  
+        text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")
+#+geom_segment(mapping=aes(x=3, y=0.5, xend=3, yend=8750), arrow=arrow(), size=0.25, color="gray50")
 
+library("gridExtra")
+grid.arrange(g1, g2, ncol = 2)
+
+
+quartz.save(type = 'pdf', file = 'Nclust.pdf',width = 12, height = 6)
+
+#
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
 # Plot hierarchy of clusters 
-CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
-plot(CLUSTCOMBI, AGN_short)
+##CLUSTCOMBI <- clustCombi(AGN_short, CLUST)
+##plot(CLUSTCOMBI, AGN_short)
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
 
+
+
+#----------------------------------------------------------------##----------------------------------------------------------------#
 # Customized plots via ggplot2
-
-
-
 gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification))
 #-----------------------
 # BPT PLOT
@@ -136,18 +156,82 @@ ggplot(data=gdata,aes(x=x,y=z))+geom_point(aes(color=type))+
   geom_segment(aes(x = -0.4, y = 5, xend = -0.4, yend = 0.5),size=1.25,linetype="dashed",color="gray25")+
  geom_hline(yintercept = 0.5,linetype="dashed",size=1.25,color="gray25")+
   geom_segment(aes(x = -0.4, y = 0.78, xend = 2, yend = 0.78),linetype="dashed",size=1.25,color="gray25")
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
 
-# 3D plot
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
-index <- sample(seq_len(nrow(AGN_short)),replace=F, size = 1000)
+
+# 3D plot of classifications of ellipses 
+CLUST3 <- Mclust(AGN_short[,c(3,1,2)],G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                 modelName = "VVV")
+#----------------------------------------------------------------##----------------------------------------------------------------#
+ellips <- ellipse3d(CLUST3$parameters$variance$sigma[,,1], 
+                    centre = c(CLUST3$parameters$mean[1,1], CLUST3$parameters$mean[2,1], CLUST3$parameters$mean[3,1]), level = 0.95)
+ellips2 <- ellipse3d(CLUST3$parameters$variance$sigma[,,2], 
+                     centre = c(CLUST3$parameters$mean[1,2], CLUST3$parameters$mean[2,2], CLUST3$parameters$mean[3,2]), level = 0.95)
+ellips3 <- ellipse3d(CLUST3$parameters$variance$sigma[,,3], 
+                     centre = c(CLUST3$parameters$mean[1,3], CLUST3$parameters$mean[2,3], CLUST3$parameters$mean[3,3]), level = 0.95)
+#ellips4 <- ellipse3d(CLUST3$parameters$variance$sigma[,,4], 
+#                     centre = c(CLUST3$parameters$mean[1,4], CLUST3$parameters$mean[2,4], CLUST3$parameters$mean[3,4]), level = 0.95)
+
+index <- sample(seq_len(nrow(AGN_short)),replace=F, size = 5000)
 x <-  AGN_short[index,3]
 y <-  AGN_short[index,1]
-z <-  AGN_short[index,2]
+z <-  AGN_short[index,2]  
 
-CLUST3 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
-                 modelName = "VVV")
 
+## Some configuration parameters:
+fig.width       <- 1000
+fig.height      <- 1000
+def.font.size   <- 1.5
+label.font.size <- 2
+grid.lwd        <- 3
+group.col <- c("#D46A6A","#D4B16A","#764B8E")
+source("rgl_add_axes.R")
+plot3d(x,y, z,  box = FALSE,
+       type ="s", size=1,alpha=0.4,xlab = "EWHa", ylab = "LogNII_Ha", 
+       zlab = "LogOIII_Hb",col=group.col[CLUST3$classification[index]])
+# Add bounding box decoration
+#rgl.bbox(color=c("gray90","black"),  shininess=3, alpha=0.8, nticks = 3 ) 
+#rgl_add_axes(x, y, z, show.bbox = FALSE)
+plot3d(ellips, col = "#D46A6A", alpha = 0.85, type = "wire",add = TRUE)
+plot3d(ellips2, col = "#D4B16A", alpha = 0.85, add = TRUE, type = "wire")
+plot3d(ellips3, col = "#764B8E", alpha = 0.85, add = TRUE, type = "wire")
+#plot3d(ellips4, col = "#fdb462", alpha = 0.85, add = TRUE, type = "wire")
+aspect3d(1,1,1)
+## Add the grid
+grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
+
+
+rgl.snapshot("trial.png", fmt="png", top=TRUE )
+
+
+
+## Add the axes
+axes3d("bbox",
+       marklen=0.075,
+       marklen.rel=FALSE,
+       xat=c(-0.4,0,0.4,0.8,1.2,1.6,2),
+       xunit=0, yunit=0, zunit=0, lwd=grid.lwd, col="black")
+
+
+
+#play3d(spin3d(axis=c(1,0,0), rpm=4), duration=20)
+movie3d(spin3d(axis=c(1,0,0), rpm=4), duration=10,
+        dir="/Users/rafael/Downloads/")
+
+writeWebGL(width = 500, height = 500)
+
+
+
+
+
+
+
+
+
+# 3D plot of classifications
 
 scatter3D_fancy <- function(x, y, z,..., colvar = z,col=col,colkey=colkey,pch=".")
 {
@@ -177,52 +261,7 @@ quartz.save(type = 'pdf', file = '3D_super.pdf',width = 11, height = 9)
 
 
 
-ellips <- ellipse3d(CLUST3$parameters$variance$sigma[,,1], 
-                    centre = c(CLUST3$parameters$mean[1,1], CLUST3$parameters$mean[2,1], CLUST3$parameters$mean[3,1]), level = 0.95)
-ellips2 <- ellipse3d(CLUST3$parameters$variance$sigma[,,2], 
-                     centre = c(CLUST3$parameters$mean[1,2], CLUST3$parameters$mean[2,2], CLUST3$parameters$mean[3,2]), level = 0.95)
-ellips3 <- ellipse3d(CLUST3$parameters$variance$sigma[,,3], 
-                     centre = c(CLUST3$parameters$mean[1,3], CLUST3$parameters$mean[2,3], CLUST3$parameters$mean[3,3]), level = 0.95)
-ellips4 <- ellipse3d(CLUST3$parameters$variance$sigma[,,4], 
-                     centre = c(CLUST3$parameters$mean[1,4], CLUST3$parameters$mean[2,4], CLUST3$parameters$mean[3,4]), level = 0.95)
-
-
-## Some configuration parameters:
-fig.width       <- 1000
-fig.height      <- 1000
-def.font.size   <- 1.5
-label.font.size <- 2
-grid.lwd        <- 3
-
-
-plot3d(y, z, x, col="blue", box = FALSE,
-       type ="p", size=0.5,alpha=0.4,xlab = "EWHa", ylab = "LogNII_Ha", 
-       zlab = "LogOIII_Hb")
-plot3d(ellips, col = "blue3",r = 1, alpha = 0.5, type = "shade",add = TRUE)
-plot3d(ellips2, col = "red3", alpha = 0.5, add = TRUE, type = "shade")
-plot3d(ellips3, col = "cyan3", alpha = 0.5, add = TRUE, type = "shade")
-plot3d(ellips4, col = "orange3", alpha = 0.5, add = TRUE, type = "shade")
-aspect3d(1,1,1)
-## Add the grid
-grid3d(side = c('x','y+','z'), lwd=grid.lwd)
-
-## Add the axes
-axes3d("bbox",
-       marklen=0.075,
-       marklen.rel=FALSE,
-       xat=c(-0.4,0,0.4,0.8,1.2,1.6,2),
-       xunit=0, yunit=0, zunit=0, lwd=grid.lwd, col="black")
-
-
-
-#play3d(spin3d(axis=c(1,0,0), rpm=4), duration=20)
-movie3d(spin3d(axis=c(1,0,0), rpm=4), duration=10,
-        dir="/Users/rafael/Downloads/")
-
-writeWebGL(width = 500, height = 500)
-
-
-
+#----------------------------------------------------------------##----------------------------------------------------------------#
 # Internal validation
 
 # Diagnostics via SI
@@ -290,7 +329,7 @@ stat_BPT<-cluster.stats(daisy(AGN_short), CLUST$classification, as.numeric(class
 clust_stats <- cluster.stats(d = dist(AGN_short), 
                              types, CLUST$classification)
 
-
+#----------------------------------------------------------------##----------------------------------------------------------------#
 
 
 
