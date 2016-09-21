@@ -9,7 +9,7 @@ colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
 
 
 # Subsampling for testing, not necessary in the final run
-test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 20000)
+test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
 AGN_short <- AGN[test_index,c("xx_BPT", "yy_BPT","yy_WHAN")]
 
 # Initialization with 1000 for higher speed
@@ -139,9 +139,14 @@ ggplot(data=gdata,aes(x=x,y=z))+geom_point(aes(color=type))+
 
 
 # 3D plot
-x <-  AGN_short[,3]
-y <-  AGN_short[,1]
-z <-  AGN_short[,2]
+
+index <- sample(seq_len(nrow(AGN_short)),replace=F, size = 1000)
+x <-  AGN_short[index,3]
+y <-  AGN_short[index,1]
+z <-  AGN_short[index,2]
+
+CLUST3 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                 modelName = "VVV")
 
 
 scatter3D_fancy <- function(x, y, z,..., colvar = z,col=col,colkey=colkey,pch=".")
@@ -168,6 +173,54 @@ scatter3D_fancy(x, y, z,colvar = as.integer(CLUST$classification),col = c("#D46A
                 xlab="EWHa",bty = "u",col.panel = "gray95",col.grid = "gray35",contour = T)
 
 quartz.save(type = 'pdf', file = '3D_super.pdf',width = 11, height = 9)
+
+
+
+
+ellips <- ellipse3d(CLUST3$parameters$variance$sigma[,,1], 
+                    centre = c(CLUST3$parameters$mean[1,1], CLUST3$parameters$mean[2,1], CLUST3$parameters$mean[3,1]), level = 0.95)
+ellips2 <- ellipse3d(CLUST3$parameters$variance$sigma[,,2], 
+                     centre = c(CLUST3$parameters$mean[1,2], CLUST3$parameters$mean[2,2], CLUST3$parameters$mean[3,2]), level = 0.95)
+ellips3 <- ellipse3d(CLUST3$parameters$variance$sigma[,,3], 
+                     centre = c(CLUST3$parameters$mean[1,3], CLUST3$parameters$mean[2,3], CLUST3$parameters$mean[3,3]), level = 0.95)
+ellips4 <- ellipse3d(CLUST3$parameters$variance$sigma[,,4], 
+                     centre = c(CLUST3$parameters$mean[1,4], CLUST3$parameters$mean[2,4], CLUST3$parameters$mean[3,4]), level = 0.95)
+
+
+## Some configuration parameters:
+fig.width       <- 1000
+fig.height      <- 1000
+def.font.size   <- 1.5
+label.font.size <- 2
+grid.lwd        <- 3
+
+
+plot3d(y, z, x, col="blue", box = FALSE,
+       type ="p", size=0.5,alpha=0.4,xlab = "EWHa", ylab = "LogNII_Ha", 
+       zlab = "LogOIII_Hb")
+plot3d(ellips, col = "blue3",r = 1, alpha = 0.5, type = "shade",add = TRUE)
+plot3d(ellips2, col = "red3", alpha = 0.5, add = TRUE, type = "shade")
+plot3d(ellips3, col = "cyan3", alpha = 0.5, add = TRUE, type = "shade")
+plot3d(ellips4, col = "orange3", alpha = 0.5, add = TRUE, type = "shade")
+aspect3d(1,1,1)
+## Add the grid
+grid3d(side = c('x','y+','z'), lwd=grid.lwd)
+
+## Add the axes
+axes3d("bbox",
+       marklen=0.075,
+       marklen.rel=FALSE,
+       xat=c(-0.4,0,0.4,0.8,1.2,1.6,2),
+       xunit=0, yunit=0, zunit=0, lwd=grid.lwd, col="black")
+
+
+
+#play3d(spin3d(axis=c(1,0,0), rpm=4), duration=20)
+movie3d(spin3d(axis=c(1,0,0), rpm=4), duration=10,
+        dir="/Users/rafael/Downloads/")
+
+writeWebGL(width = 500, height = 500)
+
 
 
 # Internal validation
