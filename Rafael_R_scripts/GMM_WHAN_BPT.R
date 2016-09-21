@@ -204,7 +204,7 @@ aspect3d(1,1,1)
 grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
 
 
-rgl.snapshot("trial.png", fmt="png", top=TRUE )
+rgl.snapshot("3D_ellipses.png", fmt="png", top=TRUE )
 
 
 
