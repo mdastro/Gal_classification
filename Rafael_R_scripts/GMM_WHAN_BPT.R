@@ -41,12 +41,12 @@ ggdata$K<-as.factor(ggdata$K)
 
 
 g1<-ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linetype=variable))+
-  geom_point()+theme_grey()+scale_color_npg(name = "")+geom_line()+scale_shape_cleveland(name = "")+
+  geom_point()+theme_bw()+scale_color_npg(name = "")+geom_line()+scale_shape_cleveland(name = "")+
   scale_linetype_stata(name = "")+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
-        legend.position=c(0.75,0.75),
+        legend.position=c(0.75,0.75),legend.background = element_rect(fill=NA),
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = -0.25),
         text = element_text(size = 20,family="serif"))+ylab("Value")
@@ -80,10 +80,9 @@ gent <-data.frame(x=as.factor(1:Kmax),y=ent)
 seg1 <- data.frame(x=1:pcwsreg$c,y=pcwsreg$a1*(1:pcwsreg$c) + pcwsreg$b1)
 seg2 <- data.frame(x=pcwsreg$c:Kmax,y=pcwsreg$a2*(pcwsreg$c:Kmax) + pcwsreg$b2)
 g2<-ggplot(gent,aes(x=x,y=y))+
-  geom_point(aes(x=x,y=y),shape=24,size=2)+
+  geom_point(aes(x=x,y=y),shape=24,size=2)+theme_bw()+
   geom_line(data=seg1,aes(x=x,y=y),color=mypal[1],linetype="dotdash",size=1)+
   geom_line(data=seg2,aes(x=x,y=y),color=mypal[2],linetype="dotted",size=1)+
-  theme_pubr()+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
@@ -124,7 +123,7 @@ g3<-ggplot(ggS,aes(y=sil_width,x=K,fill=K))+
                geom="line",linetype="dashed",size=1.5)+
   stat_summary(fun.y=median,
                geom="point",size=3.25,shape=21,fill="white",color="white")+
-  theme_pubr()+
+  theme_bw()+
   scale_color_npg(name = "")+
   scale_fill_npg()+
   theme(legend.background = element_rect(fill="white"),
