@@ -38,8 +38,10 @@ gBI<-data.frame(BIC=BIC,ICL=ICL,K=seq(1:10))
 ggdata<-melt(gBI,'K')
 ggdata$K<-as.factor(ggdata$K)
 
+
+
 g1<-ggplot(ggdata,aes(x=K,y=value,group=variable,color=variable,shape=variable,linetype=variable))+
-  geom_point()+theme_pubr()+scale_color_npg(name = "")+geom_line()+scale_shape_cleveland(name = "")+
+  geom_point()+theme_grey()+scale_color_npg(name = "")+geom_line()+scale_shape_cleveland(name = "")+
   scale_linetype_stata(name = "")+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
@@ -91,11 +93,59 @@ g2<-ggplot(gent,aes(x=x,y=y))+
         text = element_text(size = 20,family="serif"))+xlab("K")+ylab("Entropy")
 #+geom_segment(mapping=aes(x=3, y=0.5, xend=3, yend=8750), arrow=arrow(), size=0.25, color="gray50")
 
+
+#----------------------------------------------------------------##----------------------------------------------------------------#
+
+# Silhouette
+
+#--Number of Clusters via BIC and ICL----------------------------------------------------------------#
+index0 <- sample(seq_len(nrow(AGN_short)),replace=F, size = 10000)
+SIL<-list()
+for(i in 2:10){
+  CLUST <- Mclust(AGN_short,G = i,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                  modelName = "VVV")#Initialization with 1000 for higher speed
+  ss <- silhouette(CLUST$classification[index0],daisy(AGN_short[index0,]))
+  SIL[[i]] <- ss
+}
+
+gS <- list()
+ggS <-c()
+for(i in 2:10){
+  gS[[i]] <-data.frame(SIL[[i]][,],K=rep(i,nrow(SIL[[i]][,])))    
+  ggS <-rbind(ggS,gS[[i]])
+}
+ggS$K <- as.factor(ggS$K)
+
+
+g3<-ggplot(ggS,aes(y=sil_width,x=K,fill=K))+
+  #  stat_boxplot(geom ='errorbar') + 
+  geom_boxplot(colour="gray90",outlier.shape = NA,outlier.size = NA, coef = 0.25,alpha=0.75)+
+  stat_summary(fun.y=median,aes(group = 2),
+               geom="line",linetype="dashed",size=1.5)+
+  stat_summary(fun.y=median,
+               geom="point",size=3.25,shape=21,fill="white",color="white")+
+  theme_pubr()+
+  scale_color_npg(name = "")+
+  scale_fill_npg()+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = -0.25),
+        text = element_text(size = 20,family="serif"))+ylab("Silhouette")+
+  xlab("K")+coord_cartesian(ylim=c(-0.25,0.7))
+#----------------------------------------------------------------##----------------------------------------------------------------#
+
+
+
+
+
 library("gridExtra")
-grid.arrange(g1, g2, ncol = 2)
+grid.arrange(g1, g2,g3, ncol = 3)
 
 
-quartz.save(type = 'pdf', file = 'Nclust.pdf',width = 12, height = 6)
+quartz.save(type = 'pdf', file = 'Nclust.pdf',width = 16, height = 4.5)
 
 #
 #----------------------------------------------------------------##----------------------------------------------------------------#
