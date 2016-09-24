@@ -1,7 +1,7 @@
 #----------------------------------------------------------------##----------------------------------------------------------------#
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
 require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
-require(ggpubr);library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);require(rgl)
+library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);require(rgl)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 
 
