@@ -25,7 +25,7 @@ rm(AGN)
 #--Number of Clusters fixed----------------------------------------------------------------#
 
 CLUST <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
-                modelName = "VVV")#Initialization with 1000 for higher speed
+                modelName = "VVV",noise = T)#Initialization with 1000 for higher speed
 
 #--Get Ellipse info----------------------------------------------------------------#
 source("gg_ellipse.R")
@@ -80,7 +80,7 @@ ggplot(data=gdata,aes(x=x,y=z))+
   xlab(expression(paste('log ([NII]/H', alpha, ')'))) +
   ylab(expression(paste('log EW (H', alpha, ')'))) +
 #  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
-  geom_point(aes(color=type),alpha=0.4,size=0.25)+
+  geom_point(aes(color=type,shape=type),alpha=0.4,size=0.75)+
    scale_colour_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3","#fb9a99"))+
   scale_fill_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
   geom_path(data=El_WHAN,aes(x=xval,y=yval,group=classification,color=classification),size=1)+
