@@ -27,6 +27,14 @@ rm(AGN)
 CLUST <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                 modelName = "VVV")#Initialization with 1000 for higher speed
 
+#--Get Ellipse info----------------------------------------------------------------#
+source("gg_ellipse.R")
+EL<-df.ellipses(CLUST,level=0.997)
+El_BPT<-subset(EL,xvar=="yy_BPT" & yvar=="xx_BPT")
+El_BPT$classification <-as.factor(El_BPT$classification)
+
+El_WHAN<-subset(EL,xvar=="yy_WHAN" & yvar=="xx_BPT")
+El_WHAN$classification <-as.factor(El_WHAN$classification)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 # Customized plots via ggplot2
 gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification))
@@ -50,16 +58,18 @@ gSey <- data.frame(xx2,Sey)
 ggplot(data=gdata,aes(x=x,y=y))+
   xlab(expression(paste('log ([NII]/H', alpha, ')'))) +
   ylab(expression(paste('log ([OIII]/H', beta, ')'))) +
-  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
+#  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
+ 
   geom_point(aes(color=type),alpha=0.4,size=0.25)+
   scale_colour_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
   scale_fill_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
+  geom_path(data=El_BPT,aes(x=xval,y=yval,group=classification,color=classification),size=1)+
   theme_bw() + 
   geom_line(aes(x=xx,y=Ka),data=gKa,size=1.25,linetype="dashed",color="gray25")+
   geom_line(aes(x=xx1,y=Ke),data=gKe,size=1.25,linetype="dotted",color="gray25")+
   geom_line(aes(x=xx2,y=Sey),data=gSey,size=0.75,linetype="dotdash",color="gray25")+
   
-  coord_cartesian(xlim=c(-1.8,1.3),ylim=c(-1.5,1.55))+
+  coord_cartesian(xlim=c(-1.7,1.3),ylim=c(-1.4,1.5))+
   theme(legend.position = "none",plot.title = element_text(hjust=0.5),
         axis.title.y=element_text(vjust=0.75),
         axis.title.x=element_text(vjust=-0.25),
@@ -69,10 +79,11 @@ ggplot(data=gdata,aes(x=x,y=y))+
 ggplot(data=gdata,aes(x=x,y=z))+
   xlab(expression(paste('log ([NII]/H', alpha, ')'))) +
   ylab(expression(paste('log EW (H', alpha, ')'))) +
-  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
+#  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
   geom_point(aes(color=type),alpha=0.4,size=0.25)+
    scale_colour_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3","#fb9a99"))+
   scale_fill_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
+  geom_path(data=El_WHAN,aes(x=xval,y=yval,group=classification,color=classification),size=1)+
    theme_bw() + 
   coord_cartesian(xlim=c(-1.5,1.3),ylim=c(-1.1,2.5))+
   theme(legend.position = "none",plot.title = element_text(hjust=0.5),
