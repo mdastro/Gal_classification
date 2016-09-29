@@ -1,7 +1,7 @@
 #----------------------------------------------------------------##----------------------------------------------------------------#
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
 require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
-library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);require(rgl)
+library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);require(rgl);library(spatstat)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 
 
@@ -25,7 +25,7 @@ rm(AGN)
 #--Number of Clusters fixed----------------------------------------------------------------#
 
 CLUST <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
-                modelName = "VVV",noise = T)#Initialization with 1000 for higher speed
+                modelName = "VVV")#Initialization with 1000 for higher speed
 
 #--Get Ellipse info----------------------------------------------------------------#
 source("gg_ellipse.R")
@@ -37,7 +37,8 @@ El_WHAN<-subset(EL,xvar=="yy_WHAN" & yvar=="xx_BPT")
 El_WHAN$classification <-as.factor(El_WHAN$classification)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 # Customized plots via ggplot2
-gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification))
+gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification),
+                    uncertainty = CLUST$uncertainty )
 #-----------------------
 # BPT PLOT
 #-----------------------
@@ -60,7 +61,7 @@ ggplot(data=gdata,aes(x=x,y=y))+
   ylab(expression(paste('log ([OIII]/H', beta, ')'))) +
 #  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
  
-  geom_point(aes(color=type),alpha=0.4,size=0.25)+
+  geom_point(aes(color=type),size=0.25)+
   scale_colour_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
   scale_fill_manual(values = c("#66c2a5","#fc8d62","#8da0cb","#e78ac3"))+
   geom_path(data=El_BPT,aes(x=xval,y=yval,group=classification,color=classification),size=1)+
@@ -97,6 +98,82 @@ ggplot(data=gdata,aes(x=x,y=z))+
 
 
 #----------------------------------------------------------------##----------------------------------------------------------------#
+
+dr = MclustDR(CLUST)
+
+
+# Residual Analysis 
+xrng = range(gdata$x)
+yrng = range(gdata$y)
+
+group1<-data.frame(x=CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.5,1],
+                   y= CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.5,2],
+                   p=CLUST$z[CLUST$classification==1 & CLUST$uncertainty < 0.5,1])
+
+d1 = kde2d(CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.3,1],
+           CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+
+d2 = kde2d(CLUST$data[CLUST$classification==2 & CLUST$uncertainty < 0.3,1],
+           CLUST$data[CLUST$classification==2 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+
+d3 = kde2d(CLUST$data[CLUST$classification==3 & CLUST$uncertainty < 0.3,1],
+           CLUST$data[CLUST$classification==3 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+
+
+d0 = kde2d(gdata$x, gdata$y, lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+
+filled.contour(d1,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
+filled.contour(d2,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
+filled.contour(d3,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
+filled.contour(d0,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred'))
+)
+
+diff12 <- d0 
+diff12$z = d0$z - d1$z- d2$z- d3$z
+
+filled.contour(diff12,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred'))
+)
+
+rownames(diff12$z) = diff12$x
+colnames(diff12$z) = diff12$y
+
+# Now melt it to long format
+diff12.m = melt(diff12$z, id.var=rownames(diff12))
+names(diff12.m) = c("x","y","z")
+
+# Plot difference between geyser2 and geyser1 density
+ggplot(diff12.m, aes(x, y, z=z, fill=z)) +
+  geom_tile() +
+  stat_contour(aes(colour=..level..), binwidth=0.001) +
+  scale_fill_gradient2(low="red",mid="white", high="blue", midpoint=0) +
+  scale_colour_gradient2(low=muted("red"), mid="white", high=muted("blue"), midpoint=0) +
+  coord_cartesian(xlim=xrng, ylim=yrng) +
+  guides(colour=FALSE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # 3D plot of classifications of ellipses 
