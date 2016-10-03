@@ -50,45 +50,52 @@ quartz.save(type = 'pdf', file = 'Clusters.pdf',width = 16, height = 8)
 
 
 # Residual Analysis 
-xrng = range(gdata$x)
-yrng = range(gdata$y)
 
-group1<-data.frame(x=CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.5,1],
-                   y= CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.5,2],
-                   p=CLUST$z[CLUST$classification==1 & CLUST$uncertainty < 0.5,1])
+sim2<-sim(modelName = CLUST2$modelName,
+          parameters = CLUST2$parameters,
+          n = nrow(AGN_short), seed = 0)
+sim3<-sim(modelName = CLUST3$modelName,
+          parameters = CLUST3$parameters,
+          n = nrow(AGN_short), seed = 0)
 
-d1 = kde2d(CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.3,1],
-           CLUST$data[CLUST$classification==1 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
+sim4<-sim(modelName = CLUST4$modelName,
+         parameters = CLUST4$parameters,
+         n = nrow(AGN_short), seed = 0)
+xrng = range(AGN_short$xx_BPT)
+yrng = range(AGN_short$yy_BPT)
+
+
+
+d0_BPT = kde2d(AGN_short$xx_BPT, AGN_short$yy_BPT, lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+d2_BPT = kde2d(sim2[,2],
+           sim2[,3], lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+d3_BPT = kde2d(sim3[,2],
+           sim3[,3], lims=c(xrng, yrng), n=100,
+           h = rep(0.1, 2))
+d4_BPT = kde2d(sim4[,2],
+           sim4[,3], lims=c(xrng, yrng), n=100,
            h = rep(0.1, 2))
 
-d2 = kde2d(CLUST$data[CLUST$classification==2 & CLUST$uncertainty < 0.3,1],
-           CLUST$data[CLUST$classification==2 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
 
-d3 = kde2d(CLUST$data[CLUST$classification==3 & CLUST$uncertainty < 0.3,1],
-           CLUST$data[CLUST$classification==3 & CLUST$uncertainty < 0.3,2], lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
+fit2<-lm(d0_BPT$z~d2_BPT$z)
+fit3<-lm(d0_BPT$z~d3_BPT$z)
+fit4<-lm(d0_BPT$z~d4_BPT$z)
+require(plot3D)
+image2D(z=fit4$residuals)
 
 
-d0 = kde2d(gdata$x, gdata$y, lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
-
-filled.contour(d1,
+filled.contour(d4_BPT,
                color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
-filled.contour(d2,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
-filled.contour(d3,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
-filled.contour(d0,
+
+filled.contour(d0_BPT,
                color.palette=colorRampPalette(c('white','blue','yellow','red','darkred'))
 )
-
-diff12 <- d0 
-diff12$z = d0$z - d1$z- d2$z- d3$z
-
+diff12 <- d0_BPT  
+diff12$z = (d0_BPT$z - d2_BPT$z)
 filled.contour(diff12,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred'))
-)
+               col=colorRampPalette(c('blue','white','red'))(22),nlevels=19)
 
 rownames(diff12$z) = diff12$x
 colnames(diff12$z) = diff12$y
@@ -101,10 +108,10 @@ names(diff12.m) = c("x","y","z")
 ggplot(diff12.m, aes(x, y, z=z, fill=z)) +
   geom_tile() +
   stat_contour(aes(colour=..level..), binwidth=0.001) +
-  scale_fill_gradient2(low="red",mid="white", high="blue", midpoint=0) +
-  scale_colour_gradient2(low=muted("red"), mid="white", high=muted("blue"), midpoint=0) +
+  scale_fill_gradient2(low="red3",mid="white", high="blue3", midpoint=0) +
+  scale_colour_gradient2(low="red3", mid="white", high="blue3", midpoint=0) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
-  guides(colour=FALSE)
+  guides(colour=FALSE)+theme_bw()
 
 
 
