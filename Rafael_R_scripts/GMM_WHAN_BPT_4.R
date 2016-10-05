@@ -77,18 +77,55 @@ d4_BPT = kde2d(sim4[,2],
            sim4[,3], lims=c(xrng, yrng), n=100,
            h = rep(0.1, 2))
 
+#---------------------------------##---------------------------------#
+# Plot smooth representation for original data and each cluster
+rownames(d0_BPT$z) = d0_BPT$x
+colnames(d0_BPT$z) = d0_BPT$y
+rownames(d2_BPT$z) = d2_BPT$x
+colnames(d2_BPT$z) = d2_BPT$y
+rownames(d3_BPT$z) = d3_BPT$x
+colnames(d3_BPT$z) = d3_BPT$y
+rownames(d4_BPT$z) = d4_BPT$x
+colnames(d4_BPT$z) = d4_BPT$y
+# Now melt it to long format
+d0_BPT.m = melt(d0_BPT$z, id.var=rownames(d0_BPT))
+names(d0_BPT.m) = c("x","y","z")
+d2_BPT.m = melt(d2_BPT$z, id.var=rownames(d2_BPT))
+names(d2_BPT.m) = c("x","y","z")
+d3_BPT.m = melt(d3_BPT$z, id.var=rownames(d3_BPT))
+names(d3_BPT.m) = c("x","y","z")
+d4_BPT.m = melt(d4_BPT$z, id.var=rownames(d4_BPT))
+names(d4_BPT.m) = c("x","y","z")
+
+gcomb<-rbind(d0_BPT.m,d2_BPT.m,d3_BPT.m,d4_BPT.m)
+gcomb$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("Data",
+"2 clusters", "3 clusters", "4 clusters"))
+colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
+# Plot difference between geyser2 and geyser1 density
+ ggplot(gcomb , aes(x, y, z=z, fill=z)) +
+ xlab(expression(paste('log [NII]/H', alpha))) +
+  ylab(expression(paste('log [OIII]/H', beta))) +
+  stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
+  scale_fill_gradientn(colours=colors) +
+  coord_cartesian(xlim=xrng, ylim=yrng) +
+  guides(colour=FALSE)+theme_bw()+
+  theme(panel.background = element_rect(fill="white"),
+        legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 20,family="serif"))+
+  facet_wrap(~case)
+#---------------------------------##---------------------------------#
+
 diff02 <- d0_BPT  
 diff02$z = (d0_BPT$z - d2_BPT$z)
-
 diff03 <- d0_BPT  
 diff03$z = (d0_BPT$z - d3_BPT$z)
-
 diff04 <- d0_BPT  
 diff04$z = (d0_BPT$z - d4_BPT$z)
-
-plot(d0_BPT$z,d2_BPT$z)
-plot(d0_BPT$z,d3_BPT$z)
-plot(d0_BPT$z,d4_BPT$z)
 
 rownames(diff02$z) = diff02$x
 colnames(diff02$z) = diff02$y
@@ -96,7 +133,6 @@ rownames(diff03$z) = diff03$x
 colnames(diff03$z) = diff03$y
 rownames(diff04$z) = diff04$x
 colnames(diff04$z) = diff04$y
-
 
 # Now melt it to long format
 diff02.m = melt(diff02$z, id.var=rownames(diff02))
@@ -106,110 +142,34 @@ names(diff03.m) = c("x","y","z")
 diff04.m = melt(diff04$z, id.var=rownames(diff04))
 names(diff04.m) = c("x","y","z")
 
-# Plot difference between geyser2 and geyser1 density
-g02<-ggplot(diff02.m, aes(x, y, z=z, fill=z)) +
-  geom_tile() +
+diffcomb<-rbind(diff02.m,diff03.m,diff04.m)
+diffcomb$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("2 clusters", "3 clusters", "4 clusters"))
+# 
+gdiff<-ggplot(diffcomb , aes(x, y, z=z)) +
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log [OIII]/H', beta))) +
-  stat_contour(aes(colour=..level..), bins=1e3) +
-  scale_fill_gradient2(name="",low="red3",mid="white", high="blue3", midpoint=0) +
-  scale_colour_gradient2(low="red3", mid="white", high="blue3", midpoint=0) +
+  stat_contour(aes(fill =..level..,alpha=..level..), bins=5e3,geom="polygon")+
+  scale_fill_gradient2(low="blue4", mid="white", high="red",midpoint = 0) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank(),
+#        panel.grid.major.x = element_blank(),
+#        panel.grid.minor.x = element_blank(),
+#        panel.grid.major.y = element_blank(),
+#        panel.grid.minor.y = element_blank(),
         legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
-        legend.position="top",
+        legend.position="none",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 25,family="serif"))
+        text = element_text(size = 25,family="serif"))+
+  facet_wrap(~case)
+#---------------------------------##---------------------------------#
 
 
 
-
-
-
-rownames(d4_BPT$z) = diff02$x
-colnames(d4_BPT$z) = diff02$y
-
-# Now melt it to long format
-d4_BPT.m = melt(d4_BPT$z, id.var=rownames(d4_BPT))
-names(d4_BPT.m) = c("x","y","z")
-
-
-ggplot(d4_BPT.m, aes(x, y, z=z, fill=z)) +
-  geom_tile() +
-  xlab(expression(paste('log [NII]/H', alpha))) +
-  ylab(expression(paste('log [OIII]/H', beta))) +
-  stat_contour(aes(colour=..level..), bins=1e3) +
-  scale_fill_gradient2(name="",low="white",mid="red3", high="blue3",midpoint = 3) +
-  scale_colour_gradient2(low="white",mid="red3", high="blue3",midpoint = 3) +
-  coord_cartesian(xlim=xrng, ylim=yrng) +
-  guides(colour=FALSE)+theme_bw()+
-  theme(panel.background = element_rect(fill="white"),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        legend.background = element_rect(fill="white"),
-        legend.key = element_rect(fill = "white",color = "white"),
-        plot.background = element_rect(fill = "white"),
-        legend.position="top",
-        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
-        axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 25,family="serif"))
-
-
-#-----------------------
-# BPT PLOT
-#-----------------------
-xx = seq(-4, 0.0, 0.01)
-Ka = 0.61 / (xx - 0.05) + 1.30
-gKa <- data.frame(xx,Ka)
-#-----------------------
-xx1 = seq(-4, 0.4, 0.01)
-Ke = 0.61 / (xx1 - 0.47) + 1.19
-gKe <- data.frame(xx1,Ke)
-
-#-----------------------
-xx2 = seq(-0.43, 1, 0.01)
-Sey = 1.05 * xx2 + 0.45
-gSey <- data.frame(xx2,Sey)
-
-filled.contour(d0_BPT,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
-               xlab = expression(paste('log [NII]/H', alpha)),
-               ylab = expression(paste('log [OIII]/H', beta)),xlim=xrng,ylim= yrng
-)
-#lines(xx, Ka, col = 'grey30', lwd = 3,lty = 1)
-#lines(xx1, Ke, col = 'grey30', lwd = 3,lty = 4)
-#lines(xx2, Sey, col = 'grey30', lwd = 3, lty = 2)
-
-filled.contour(d2_BPT,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
-               xlab = expression(paste('log [NII]/H', alpha)),
-               ylab = expression(paste('log [OIII]/H', beta))
-)
-
-filled.contour(d3_BPT,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
-               xlab = expression(paste('log [NII]/H', alpha)),
-               ylab = expression(paste('log [OIII]/H', beta))
-)
-
-filled.contour(d4_BPT,
-               color.palette=colorRampPalette(c('white','blue','orange','red','darkred')),
-               xlab = expression(paste('log [NII]/H', alpha)),
-               ylab = expression(paste('log [OIII]/H', beta)),ylim=c(-1.1,0.75),xlim=c(-1,0.45)
-)
-
-
-
+# Plot prediction vs observed
 
 obs<-as.numeric(d0_BPT$z)
 pred2<-as.numeric(d2_BPT$z)
@@ -220,16 +180,20 @@ fit2<-lm(obs~pred2)
 fit3<-lm(obs~pred3)
 fit4<-lm(obs~pred4)
 
-sum(residuals(fit4, type = "pearson")^2)
-
 gfit2<-data.frame(x=obs,y=pred2)
 gfit3<-data.frame(x=obs,y=pred3)
 gfit4<-data.frame(x=obs,y=pred4)
 
+gfitcomb<-rbind(gfit2,gfit3,gfit4)
+gfitcomb$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),
+levels=c("2 clusters", "3 clusters", "4 clusters"))
 
-gr2<-ggplot(gfit2,aes(x=x,y=y))+geom_point()+
-  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")+
+gfit<-ggplot(gfitcomb,aes(x=x,y=y))+geom_point(color="gray80")+
+  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm",color="red3")+
   theme_bw()+
+  scale_y_continuous(breaks = c(-0.01,0,1.5,3,4.5,6),
+  labels=c("",0,1.5,3,4.5,6))+
+  scale_x_continuous(breaks = c(0,1.5,3,4.5,6))+
   theme(legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
@@ -237,17 +201,14 @@ gr2<-ggplot(gfit2,aes(x=x,y=y))+geom_point()+
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
         text = element_text(size = 25,family="serif"))+xlab("Observed")+
-  ylab("Predicted")
+  ylab("Predicted")+
+  facet_wrap(~case)
 
 
+grid.arrange(gdiff, gfit, ncol = 1,nrow=2)
 
-gr3<-ggplot(gfit3,aes(x=x,y=y))+geom_point()+
-  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")
 
-gr4<-ggplot(gfit4,aes(x=x,y=y))+geom_point()+
-  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")
-
-grid.arrange(gr2, gr3,gr4, ncol = 2,nrow=2)
+sum(residuals(fit4, type = "pearson")^2)
 
 
 # 3D plot of classifications of ellipses 
