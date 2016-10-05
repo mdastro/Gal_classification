@@ -236,7 +236,8 @@ gr2<-ggplot(gfit2,aes(x=x,y=y))+geom_point()+
         legend.position="top",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 25,family="serif"))
+        text = element_text(size = 25,family="serif"))+xlab("Observed")+
+  ylab("Predicted")
 
 
 
