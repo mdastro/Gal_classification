@@ -48,7 +48,6 @@ grid.arrange(B2, B3,B4,W2,W3,W4, ncol = 3,nrow=2)
 quartz.save(type = 'pdf', file = 'Clusters.pdf',width = 16, height = 8)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 
-
 # Residual Analysis 
 
 sim2<-sim(modelName = CLUST2$modelName,
@@ -78,56 +77,176 @@ d4_BPT = kde2d(sim4[,2],
            sim4[,3], lims=c(xrng, yrng), n=100,
            h = rep(0.1, 2))
 
+diff02 <- d0_BPT  
+diff02$z = (d0_BPT$z - d2_BPT$z)
 
-fit2<-lm(d0_BPT$z~d2_BPT$z)
-fit3<-lm(d0_BPT$z~d3_BPT$z)
-fit4<-lm(d0_BPT$z~d4_BPT$z)
-require(plot3D)
-image2D(z=fit4$residuals)
+diff03 <- d0_BPT  
+diff03$z = (d0_BPT$z - d3_BPT$z)
 
+diff04 <- d0_BPT  
+diff04$z = (d0_BPT$z - d4_BPT$z)
 
-filled.contour(d4_BPT,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')))
+plot(d0_BPT$z,d2_BPT$z)
+plot(d0_BPT$z,d3_BPT$z)
+plot(d0_BPT$z,d4_BPT$z)
 
-filled.contour(d0_BPT,
-               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred'))
-)
-diff12 <- d0_BPT  
-diff12$z = (d0_BPT$z - d2_BPT$z)
-filled.contour(diff12,
-               col=colorRampPalette(c('blue','white','red'))(22),nlevels=19)
+rownames(diff02$z) = diff02$x
+colnames(diff02$z) = diff02$y
+rownames(diff03$z) = diff03$x
+colnames(diff03$z) = diff03$y
+rownames(diff04$z) = diff04$x
+colnames(diff04$z) = diff04$y
 
-rownames(diff12$z) = diff12$x
-colnames(diff12$z) = diff12$y
 
 # Now melt it to long format
-diff12.m = melt(diff12$z, id.var=rownames(diff12))
-names(diff12.m) = c("x","y","z")
+diff02.m = melt(diff02$z, id.var=rownames(diff02))
+names(diff02.m) = c("x","y","z")
+diff03.m = melt(diff03$z, id.var=rownames(diff03))
+names(diff03.m) = c("x","y","z")
+diff04.m = melt(diff04$z, id.var=rownames(diff04))
+names(diff04.m) = c("x","y","z")
 
 # Plot difference between geyser2 and geyser1 density
-ggplot(diff12.m, aes(x, y, z=z, fill=z)) +
+g02<-ggplot(diff02.m, aes(x, y, z=z, fill=z)) +
   geom_tile() +
-  stat_contour(aes(colour=..level..), binwidth=0.001) +
-  scale_fill_gradient2(low="red3",mid="white", high="blue3", midpoint=0) +
+  xlab(expression(paste('log [NII]/H', alpha))) +
+  ylab(expression(paste('log [OIII]/H', beta))) +
+  stat_contour(aes(colour=..level..), bins=1e3) +
+  scale_fill_gradient2(name="",low="red3",mid="white", high="blue3", midpoint=0) +
   scale_colour_gradient2(low="red3", mid="white", high="blue3", midpoint=0) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
-  guides(colour=FALSE)+theme_bw()
+  guides(colour=FALSE)+theme_bw()+
+  theme(panel.background = element_rect(fill="white"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="top",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25,family="serif"))
 
 
 
 
 
 
+rownames(d4_BPT$z) = diff02$x
+colnames(d4_BPT$z) = diff02$y
+
+# Now melt it to long format
+d4_BPT.m = melt(d4_BPT$z, id.var=rownames(d4_BPT))
+names(d4_BPT.m) = c("x","y","z")
+
+
+ggplot(d4_BPT.m, aes(x, y, z=z, fill=z)) +
+  geom_tile() +
+  xlab(expression(paste('log [NII]/H', alpha))) +
+  ylab(expression(paste('log [OIII]/H', beta))) +
+  stat_contour(aes(colour=..level..), bins=1e3) +
+  scale_fill_gradient2(name="",low="white",mid="red3", high="blue3",midpoint = 3) +
+  scale_colour_gradient2(low="white",mid="red3", high="blue3",midpoint = 3) +
+  coord_cartesian(xlim=xrng, ylim=yrng) +
+  guides(colour=FALSE)+theme_bw()+
+  theme(panel.background = element_rect(fill="white"),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
+        legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="top",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25,family="serif"))
+
+
+#-----------------------
+# BPT PLOT
+#-----------------------
+xx = seq(-4, 0.0, 0.01)
+Ka = 0.61 / (xx - 0.05) + 1.30
+gKa <- data.frame(xx,Ka)
+#-----------------------
+xx1 = seq(-4, 0.4, 0.01)
+Ke = 0.61 / (xx1 - 0.47) + 1.19
+gKe <- data.frame(xx1,Ke)
+
+#-----------------------
+xx2 = seq(-0.43, 1, 0.01)
+Sey = 1.05 * xx2 + 0.45
+gSey <- data.frame(xx2,Sey)
+
+filled.contour(d0_BPT,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
+               xlab = expression(paste('log [NII]/H', alpha)),
+               ylab = expression(paste('log [OIII]/H', beta)),xlim=xrng,ylim= yrng
+)
+#lines(xx, Ka, col = 'grey30', lwd = 3,lty = 1)
+#lines(xx1, Ke, col = 'grey30', lwd = 3,lty = 4)
+#lines(xx2, Sey, col = 'grey30', lwd = 3, lty = 2)
+
+filled.contour(d2_BPT,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
+               xlab = expression(paste('log [NII]/H', alpha)),
+               ylab = expression(paste('log [OIII]/H', beta))
+)
+
+filled.contour(d3_BPT,
+               color.palette=colorRampPalette(c('white','blue','yellow','red','darkred')),
+               xlab = expression(paste('log [NII]/H', alpha)),
+               ylab = expression(paste('log [OIII]/H', beta))
+)
+
+filled.contour(d4_BPT,
+               color.palette=colorRampPalette(c('white','blue','orange','red','darkred')),
+               xlab = expression(paste('log [NII]/H', alpha)),
+               ylab = expression(paste('log [OIII]/H', beta)),ylim=c(-1.1,0.75),xlim=c(-1,0.45)
+)
 
 
 
 
+obs<-as.numeric(d0_BPT$z)
+pred2<-as.numeric(d2_BPT$z)
+pred3<-as.numeric(d3_BPT$z)
+pred4<-as.numeric(d4_BPT$z)
+
+fit2<-lm(obs~pred2)
+fit3<-lm(obs~pred3)
+fit4<-lm(obs~pred4)
+
+sum(residuals(fit4, type = "pearson")^2)
+
+gfit2<-data.frame(x=obs,y=pred2)
+gfit3<-data.frame(x=obs,y=pred3)
+gfit4<-data.frame(x=obs,y=pred4)
+
+
+gr2<-ggplot(gfit2,aes(x=x,y=y))+geom_point()+
+  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")+
+  theme_bw()+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="top",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25,family="serif"))
 
 
 
+gr3<-ggplot(gfit3,aes(x=x,y=y))+geom_point()+
+  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")
 
+gr4<-ggplot(gfit4,aes(x=x,y=y))+geom_point()+
+  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm")
 
-
+grid.arrange(gr2, gr3,gr4, ncol = 2,nrow=2)
 
 
 # 3D plot of classifications of ellipses 
