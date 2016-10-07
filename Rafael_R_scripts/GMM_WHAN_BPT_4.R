@@ -212,23 +212,22 @@ sum(residuals(fit4, type = "pearson")^2)
 
 
 # 3D plot of classifications of ellipses 
-CLUST3 <- Mclust(AGN_short[,c(3,1,2)],G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+CLUST_b <- Mclust(AGN_short[,c(3,1,2)],G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")
 #----------------------------------------------------------------##----------------------------------------------------------------#
-ellips <- ellipse3d(CLUST3$parameters$variance$sigma[,,1], 
-                    centre = c(CLUST3$parameters$mean[1,1], CLUST3$parameters$mean[2,1], CLUST3$parameters$mean[3,1]), level = 0.95)
-ellips2 <- ellipse3d(CLUST3$parameters$variance$sigma[,,2], 
-                     centre = c(CLUST3$parameters$mean[1,2], CLUST3$parameters$mean[2,2], CLUST3$parameters$mean[3,2]), level = 0.95)
-ellips3 <- ellipse3d(CLUST3$parameters$variance$sigma[,,3], 
-                     centre = c(CLUST3$parameters$mean[1,3], CLUST3$parameters$mean[2,3], CLUST3$parameters$mean[3,3]), level = 0.95)
-#ellips4 <- ellipse3d(CLUST3$parameters$variance$sigma[,,4], 
-#                     centre = c(CLUST3$parameters$mean[1,4], CLUST3$parameters$mean[2,4], CLUST3$parameters$mean[3,4]), level = 0.95)
+ellips <- ellipse3d(CLUST_b$parameters$variance$sigma[,,1], 
+                    centre = c(CLUST_b$parameters$mean[1,1], CLUST_b$parameters$mean[2,1], CLUST_b$parameters$mean[3,1]), level = 0.95)
+ellips2 <- ellipse3d(CLUST_b$parameters$variance$sigma[,,2], 
+                     centre = c(CLUST_b$parameters$mean[1,2], CLUST_b$parameters$mean[2,2], CLUST_b$parameters$mean[3,2]), level = 0.95)
+ellips3 <- ellipse3d(CLUST_b$parameters$variance$sigma[,,3], 
+                     centre = c(CLUST_b$parameters$mean[1,3], CLUST_b$parameters$mean[2,3], CLUST_b$parameters$mean[3,3]), level = 0.95)
+ellips4 <- ellipse3d(CLUST_b$parameters$variance$sigma[,,4], 
+                     centre = c(CLUST_b$parameters$mean[1,4], CLUST_b$parameters$mean[2,4], CLUST_b$parameters$mean[3,4]), level = 0.95)
 
 index <- sample(seq_len(nrow(AGN_short)),replace=F, size = 5000)
 x <-  AGN_short[index,3]
 y <-  AGN_short[index,1]
 z <-  AGN_short[index,2]  
-
 
 ## Some configuration parameters:
 fig.width       <- 1000
@@ -236,24 +235,28 @@ fig.height      <- 1000
 def.font.size   <- 1.5
 label.font.size <- 2
 grid.lwd        <- 3
-group.col <- c("#D46A6A","#D4B16A","#764B8E")
+
+mypal = pal_npg("nrc", alpha = 0.7)(4)
+mypal
+
+group.col <- mypal
 source("rgl_add_axes.R")
-plot3d(x,y, z,  box = FALSE,
-       type ="s", size=1,alpha=0.4,xlab = "EWHa", ylab = "LogNII_Ha", 
-       zlab = "LogOIII_Hb",col=group.col[CLUST3$classification[index]])
+plot3d(x,y, z,  box = F,
+       type ="p", size=0.01,alpha=0.1,xlab = "EWHa", ylab = "LogNII_Ha", 
+       zlab = "LogOIII_Hb",col="gray90")
 # Add bounding box decoration
 #rgl.bbox(color=c("gray90","black"),  shininess=3, alpha=0.8, nticks = 3 ) 
 #rgl_add_axes(x, y, z, show.bbox = FALSE)
-plot3d(ellips, col = "#D46A6A", alpha = 0.85, type = "wire",add = TRUE)
-plot3d(ellips2, col = "#D4B16A", alpha = 0.85, add = TRUE, type = "wire")
-plot3d(ellips3, col = "#764B8E", alpha = 0.85, add = TRUE, type = "wire")
-#plot3d(ellips4, col = "#fdb462", alpha = 0.85, add = TRUE, type = "wire")
+plot3d(ellips, col = mypal[1], alpha = 0.45, type = "shade",add = TRUE)
+plot3d(ellips2, col = mypal[2], alpha = 0.45, add = T, type = "shade")
+plot3d(ellips3, col = mypal[3], alpha = 0.45, add = T, type = "shade")
+plot3d(ellips4, col = mypal[4], alpha = 0.45, add = TRUE, type = "shade")
 aspect3d(1,1,1)
 ## Add the grid
-grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
+#grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
 
 
-rgl.snapshot("3D_ellipses.png", fmt="png", top=TRUE )
+rgl.snapshot("3D_ellipses2.png", fmt="png", top=TRUE )
 
 
 
@@ -271,12 +274,6 @@ movie3d(spin3d(axis=c(1,0,0), rpm=4), duration=10,
         dir="/Users/rafael/Downloads/")
 
 writeWebGL(width = 500, height = 500)
-
-
-
-
-
-
 
 
 
