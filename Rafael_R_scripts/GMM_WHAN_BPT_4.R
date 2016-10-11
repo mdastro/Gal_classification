@@ -211,6 +211,175 @@ grid.arrange(gdiff, gfit, ncol = 1,nrow=2)
 sum(residuals(fit4, type = "pearson")^2)
 
 
+
+
+
+# Residual Analysis WHAN
+
+xrng_w = range(AGN_short$xx_BPT)
+yrng_w = range(AGN_short$yy_WHAN)
+
+
+
+d0_WHAN = kde2d(AGN_short$xx_BPT, AGN_short$yy_WHAN, lims=c(xrng_w, yrng_w), n=100,
+               h = rep(0.1, 2))
+d2_WHAN = kde2d(sim2[,2],
+               sim2[,4], lims=c(xrng_w, yrng_w), n=100,
+               h = rep(0.1, 2))
+d3_WHAN = kde2d(sim3[,2],
+               sim3[,4], lims=c(xrng_w, yrng_w), n=100,
+               h = rep(0.1, 2))
+d4_WHAN = kde2d(sim4[,2],
+               sim4[,4], lims=c(xrng_w, yrng_w), n=100,
+               h = rep(0.1, 2))
+
+#---------------------------------##---------------------------------#
+# Plot smooth representation for original data and each cluster
+rownames(d0_WHAN$z) = d0_WHAN$x
+colnames(d0_WHAN$z) = d0_WHAN$y
+rownames(d2_WHAN$z) = d2_WHAN$x
+colnames(d2_WHAN$z) = d2_WHAN$y
+rownames(d3_WHAN$z) = d3_WHAN$x
+colnames(d3_WHAN$z) = d3_WHAN$y
+rownames(d4_WHAN$z) = d4_WHAN$x
+colnames(d4_WHAN$z) = d4_WHAN$y
+# Now melt it to long format
+d0_WHAN.m = melt(d0_WHAN$z, id.var=rownames(d0_WHAN))
+names(d0_WHAN.m) = c("x","y","z")
+d2_WHAN.m = melt(d2_WHAN$z, id.var=rownames(d2_WHAN))
+names(d2_WHAN.m) = c("x","y","z")
+d3_WHAN.m = melt(d3_WHAN$z, id.var=rownames(d3_WHAN))
+names(d3_WHAN.m) = c("x","y","z")
+d4_WHAN.m = melt(d4_WHAN$z, id.var=rownames(d4_WHAN))
+names(d4_WHAN.m) = c("x","y","z")
+
+gcomb_WHAN<-rbind(d0_WHAN.m,d2_WHAN.m,d3_WHAN.m,d4_WHAN.m)
+gcomb_WHAN$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("Data",
+                                                                                             "2 clusters", "3 clusters", "4 clusters"))
+colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
+# Plot difference between geyser2 and geyser1 density
+ggplot(gcomb_WHAN, aes(x, y, z=z, fill=z)) +
+  xlab(expression(paste('log [NII]/H', alpha))) +
+  ylab(expression(paste('log EW(H', alpha, ')'))) +
+  stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
+  scale_fill_gradientn(colours=colors) +
+  coord_cartesian(xlim=xrng_w, ylim=yrng_w) +
+  guides(colour=FALSE)+theme_bw()+
+  theme(panel.background = element_rect(fill="white"),
+        legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 20,family="serif"))+
+  facet_wrap(~case)
+#---------------------------------##---------------------------------#
+
+diff02_WHAN <- d0_WHAN  
+diff02_WHAN$z = (d0_WHAN$z - d2_WHAN$z)
+diff03_WHAN <- d0_WHAN  
+diff03_WHAN$z = (d0_WHAN$z - d3_WHAN$z)
+diff04_WHAN <- d0_WHAN  
+diff04_WHAN$z = (d0_WHAN$z - d4_WHAN$z)
+
+rownames(diff02_WHAN$z) = diff02_WHAN$x
+colnames(diff02_WHAN$z) = diff02_WHAN$y
+rownames(diff03_WHAN$z) = diff03_WHAN$x
+colnames(diff03_WHAN$z) = diff03_WHAN$y
+rownames(diff04_WHAN$z) = diff04_WHAN$x
+colnames(diff04_WHAN$z) = diff04_WHAN$y
+
+# Now melt it to long format
+diff02_WHAN.m = melt(diff02_WHAN$z, id.var=rownames(diff02_WHAN))
+names(diff02_WHAN.m) = c("x","y","z")
+diff03_WHAN.m = melt(diff03_WHAN$z, id.var=rownames(diff03_WHAN))
+names(diff03_WHAN.m) = c("x","y","z")
+diff04_WHAN.m = melt(diff04_WHAN$z, id.var=rownames(diff04_WHAN))
+names(diff04_WHAN.m) = c("x","y","z")
+
+diffcomb_WHAN<-rbind(diff02_WHAN.m,diff03_WHAN.m,diff04_WHAN.m)
+diffcomb_WHAN$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("2 clusters", "3 clusters", "4 clusters"))
+# 
+gdiff_w<-ggplot(diffcomb_WHAN, aes(x, y, z=z)) +
+  xlab(expression(paste('log [NII]/H', alpha))) +
+  ylab(expression(paste('log EW(H', alpha, ')'))) +
+  stat_contour(aes(fill =..level..,alpha=..level..), bins=5e3,geom="polygon")+
+  scale_fill_gradient2(low="blue4", mid="white", high="red",midpoint = 0) +
+  coord_cartesian(xlim=xrng_w, ylim=yrng_w) +
+  guides(colour=FALSE)+theme_bw()+
+  theme(panel.background = element_rect(fill="white"),
+        #        panel.grid.major.x = element_blank(),
+        #        panel.grid.minor.x = element_blank(),
+        #        panel.grid.major.y = element_blank(),
+        #        panel.grid.minor.y = element_blank(),
+        legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="none",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25,family="serif"))+
+  facet_wrap(~case)
+#---------------------------------##---------------------------------#
+
+
+
+# Plot prediction vs observed
+
+obs_WHAN<-as.numeric(d0_WHAN$z)
+pred2_WHAN<-as.numeric(d2_WHAN$z)
+pred3_WHAN<-as.numeric(d3_WHAN$z)
+pred4_WHAN<-as.numeric(d4_WHAN$z)
+
+fit2_WHAN<-lm(ob_WHANs~pred2_WHAN)
+fit3_WHAN<-lm(obs_WHAN~pred3_WHAN)
+fit4_WHAN<-lm(obs_WHAN~pred4_WHAN)
+
+gfit2_WHAN<-data.frame(x=obs_WHAN,y=pred2_WHAN)
+gfit3_WHAN<-data.frame(x=obs_WHAN,y=pred3_WHAN)
+gfit4_WHAN<-data.frame(x=obs_WHAN,y=pred4_WHAN)
+
+gfitcomb_WHAN<-rbind(gfit2_WHAN,gfit3_WHAN,gfit4_WHAN)
+gfitcomb_WHAN$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),
+                        levels=c("2 clusters", "3 clusters", "4 clusters"))
+
+gfit_w<-ggplot(gfitcomb_WHAN,aes(x=x,y=y))+geom_point(color="gray80")+
+  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm",color="red3")+
+  theme_bw()+
+  scale_y_continuous(breaks = c(-0.01,0,1.5,3,4.5,6),
+                     labels=c("",0,1.5,3,4.5,6))+
+  scale_x_continuous(breaks = c(0,1.5,3,4.5,6))+
+  theme(legend.background = element_rect(fill="white"),
+        legend.key = element_rect(fill = "white",color = "white"),
+        plot.background = element_rect(fill = "white"),
+        legend.position="top",
+        axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
+        axis.title.x = element_text(vjust = 0.5),
+        text = element_text(size = 25))+xlab("Observed")+
+  ylab("Predicted")+
+  facet_wrap(~case)
+
+
+grid.arrange(gdiff_w, gfit_w, ncol = 1,nrow=2)
+
+
+sum(residuals(fit4, type = "pearson")^2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 3D plot of classifications of ellipses 
 CLUST_b <- Mclust(AGN_short[,c(3,1,2)],G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")
