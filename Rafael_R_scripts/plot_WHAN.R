@@ -1,4 +1,5 @@
-plot_WHAN<-function(CLUST){
+plot_WHAN<-function(CLUST,size=7500){
+  #--Get Ellipse info----------------------------------------------------------------#  
   EL68<-df.ellipses(CLUST,level=0.68)
   EL95<-df.ellipses(CLUST,level=0.95)
   EL99<-df.ellipses(CLUST,level=0.997)
@@ -13,21 +14,23 @@ plot_WHAN<-function(CLUST){
   El_WHAN99$classification <-as.factor(El_WHAN99$classification)
   #
 gdata <- data.frame(x=AGN_short$xx_BPT,y=AGN_short$yy_BPT,z=AGN_short$yy_WHAN, type=as.factor(CLUST$classification),
-                      uncertainty = CLUST$uncertainty )  
+                      uncertainty = CLUST$uncertainty )
+# subset data for plot
+index <- sample(seq_len(nrow(gdata)),replace = F, size = size)
 
 gg<-ggplot(data=gdata,aes(x=x,y=z))+
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log EW(H', alpha, ')'))) +
-  geom_point(color="gray80",alpha=0.2,size=0.5)+
+  geom_point(data=gdata[index,],aes(x=x,y=z),color="gray60",alpha=0.4,size=0.5)+
   scale_colour_npg()+
   scale_fill_npg()+
   geom_polygon(data=El_WHAN95,aes(x=xval,y=yval,group=classification,
                                  color=classification,fill=classification),
-               size=1,alpha=0.2)+
+               size=1,alpha=0.15)+
   
   geom_polygon(data=El_WHAN68,aes(x=xval,y=yval,group=classification,color=classification,
                                  fill=classification
-  ),size=1,alpha=0.4)+
+  ),size=1,alpha=0.15)+
   theme_bw() + 
   coord_cartesian(xlim=c(-1.5,1.3),ylim=c(-1.1,2.5))+
   theme(legend.position = "none",plot.title = element_text(hjust=0.5),

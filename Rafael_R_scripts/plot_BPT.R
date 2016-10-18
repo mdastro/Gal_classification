@@ -1,4 +1,4 @@
-plot_BPT<-function(CLUST){
+plot_BPT<-function(CLUST,size=7500){
   #--Get Ellipse info----------------------------------------------------------------#
   EL68<-df.ellipses(CLUST,level=0.68)
   EL95<-df.ellipses(CLUST,level=0.95)
@@ -35,25 +35,27 @@ plot_BPT<-function(CLUST){
   xx2 = seq(-0.43, 5, 0.01)
   Sey = 1.05 * xx2 + 0.45
   gSey <- data.frame(xx2,Sey)
-  
+
+# subset data for plot
+index <- sample(seq_len(nrow(gdata)),replace = F, size = size)    
   # BPT projection
   gg<-ggplot(data=gdata,aes(x=x,y=y))+
     xlab(expression(paste('log [NII]/H', alpha))) +
     ylab(expression(paste('log [OIII]/H', beta))) +
     #  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
-    geom_point(color="gray80",alpha=0.2,size=0.5)+
-    scale_colour_npg()+
-    scale_fill_npg()+
+        geom_point(data=gdata[index,],aes(x=x,y=y),color="gray60",alpha=0.4,size=0.5)+
+    scale_colour_manual(values=c("#EEC900","#00FA9A", "#00BFFF", "#EE1289"))+ 
+    scale_fill_manual(values=c("#EEC900", "#00FA9A","#00BFFF", "#EE1289"))+
+#    scale_linetype_stata()+
     # geom_path(data=El_BPT99,aes(x=xval,y=yval,group=classification,color=classification
     #                                 ),size=1)+
     geom_polygon(data=El_BPT95,aes(x=xval,y=yval,group=classification,
                                    color=classification,fill=classification),
-                 size=1,alpha=0.2)+
+                 size=1.1,alpha=0.175)+
     
     geom_polygon(data=El_BPT68,aes(x=xval,y=yval,group=classification,color=classification,
                                    fill=classification
-    ),size=1,alpha=0.4)+
-    
+    ),size=1.1,alpha=0.175)+
     theme_bw() + 
     geom_line(aes(x=xx,y=Ka),data=gKa,size=1.25,linetype="dashed",color="gray25")+
     geom_line(aes(x=xx1,y=Ke),data=gKe,size=1.25,linetype="dotted",color="gray25")+
