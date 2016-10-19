@@ -65,6 +65,7 @@ maxRange <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 pdfCluster <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 pdfClass <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 KL <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+gg <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 for (i in 1:Ncluster){
 for (j in 1:Nclass){  
  data[[i,j]] = rbind(cluster_sep[[i]], class_sep[[j]])
@@ -89,10 +90,28 @@ pdfCluster[[i,j]]$y = pdfCluster[[i,j]]$y/sum(pdfCluster[[i,j]]$y)
 pdfClass[[i,j]]$y = pdfClass[[i,j]]$y/sum(pdfClass[[i,j]]$y)
 # Calcualte K-L distance using package Laplace Demon
 KL[[i,j]] <- KLD(pdfCluster[[i,j]]$y,pdfClass[[i,j]]$y)$mean.sum.KLD
+
+# Plot density of cluster vs classes
+
+gg[[i,j]] <- ggplot(
+data=data.frame(x=pdfCluster[[i,j]]$x,y=pdfCluster[[i,j]]$y),aes(x=x,y=y))+
+  geom_line()+
+  geom_line(data=data.frame(x=pdfClass[[i,j]]$x,y=pdfClass[[i,j]]$y),aes(x=x,y=y),
+            linetype="dashed")
+
 }
 }
-return(list(KL=KL))
+z <- matrix(unlist(KL),nrow=nrow(KL),ncol=ncol(KL))
+return(list(KL=z,
+            pdfCluster = pdfCluster,
+            pdfClass = pdfClass,
+            gg=gg))
 }
+
+fit<- ExClVal(class,clust)
+
+g1 <- data.frame(fit$pdfCluster[[1,1]]$x)
+ggplot()
 
 plot(range(pdfCluster[[1,1]]$x, pdfClass[[1,1]]$x), range(pdfCluster[[1,1]]$y, pdfClass[[1,1]]$y),
      type="n", xlab="X values for both distributions", ylab="Probability Density",
@@ -112,29 +131,8 @@ legend("topleft", legend=c("Cluster", "Class"), col=c("red", "blue"),
   legend("topleft", legend=c("Cluster", "Class"), col=c("red", "blue"), 
          lty=c(1,1))
   
-  #Create a vector for kl-distance calculation
-  klD.Cluster.Class = rep(Inf, length(pdfCluster$y))
-  
-  #Calculate kl-distance for both distributions
-  for (i in 1:length(pdfCluster$y)) {
-    if(pdfClass$y[i] != 0 && pdfCluster$y[i] != 0){
-      klD.Cluster.Class[i] <- pdfCluster$y[i] * (log(pdfCluster$y[i]) - 
-                                                   log(pdfClass$y[i]))
-    }
-  }
-  
-  #Obtain overall KL-distance as sum of values in kl-distance vector
-  klDistance = sum(klD.Cluster.Class[klD.Cluster.Class != Inf])
-  
-  if (klDistance == 0)
-    klDistance = Inf
-  
-  #Output Kullback-Leibler distance between cluster and class
-  klDistance
   
   
   
   
   
-  
-}
