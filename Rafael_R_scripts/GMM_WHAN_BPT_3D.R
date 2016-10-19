@@ -10,10 +10,13 @@ source("plot_WHAN.R")
 
 #----------------------------------------------------------------##----------------------------------------------------------------#
 # Read and store data
-AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)
-colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
-                         "yy_WHAN", "EW_NII_WHAN", "class_WHAN")
+#AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)
+#colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
+#                         "yy_WHAN", "EW_NII_WHAN", "class_WHAN")
 
+Dat <- read.csv("..//Dataset/Class_WHAN_BPT_D4.csv",header=T)
+AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
+yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
 
 # Subsampling for testing, not necessary in the final run
 #test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
@@ -35,6 +38,14 @@ CLUST3 <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_sh
 CLUST4 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")#Initialization with 1000 for higher speed
 
+Dat$GMM_class_3 <- CLUST3$classification
+Dat$GMM_class_4 <- CLUST4$classification
+dat2 <-data.frame(AGN_short,Dat[,c(4,5,11,12,13,14)])
+write.csv(dat2,"..//Dataset/all_classifications.csv",row.names=F)
+
+# Export data for post-processing
+
+
 
 B2 <- plot_BPT(CLUST2)
 B3 <- plot_BPT(CLUST3)
@@ -45,7 +56,7 @@ W4 <- plot_WHAN(CLUST4)
 
 
 grid.arrange(B2, B3,B4,W2,W3,W4, ncol = 3,nrow=2)
-quartz.save(type = 'pdf', file = 'Clusters.pdf',width = 12, height = 7.5)
+quartz.save(type = 'pdf', file = 'Clusters_b.pdf',width = 12, height = 7.5)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 
 # Residual Analysis 
@@ -100,13 +111,16 @@ names(d4_BPT.m) = c("x","y","z")
 gcomb<-rbind(d0_BPT.m,d2_BPT.m,d3_BPT.m,d4_BPT.m)
 gcomb$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("Data",
 "2 clusters", "3 clusters", "4 clusters"))
-colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
-# Plot difference between geyser2 and geyser1 density
+library(viridis)
+
+colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(30)
+colors2 <- c('white',plasma(30))
+# Plot difference 
  ggplot(gcomb , aes(x, y, z=z, fill=z)) +
  xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log [OIII]/H', beta))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
-  scale_fill_gradientn(colours=colors) +
+  scale_fill_gradientn(colours=colors2) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
@@ -118,6 +132,8 @@ colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
         axis.title.x = element_text(vjust = 0.5),
         text = element_text(size = 20))+
   facet_wrap(~case)
+ 
+ quartz.save(type = 'pdf', file = 'simulation_BPT.pdf',width = 9, height = 8)
 #---------------------------------##---------------------------------#
 
 diff02 <- d0_BPT  
@@ -149,16 +165,16 @@ gdiff<-ggplot(diffcomb , aes(x, y, z=z)) +
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log [OIII]/H', beta))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e3,geom="polygon")+
-  scale_fill_gradient2(low="blue4", mid="white", high="red",midpoint = 0) +
+  scale_fill_gradient2(low="blue4", mid="white", high="darkred",midpoint = 0) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
   scale_y_continuous(breaks = c(-1,0,1),
                      labels=c("-1","0","1"))+
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
-#        panel.grid.major.x = element_blank(),
-#        panel.grid.minor.x = element_blank(),
-#        panel.grid.major.y = element_blank(),
-#        panel.grid.minor.y = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.y = element_blank(),
         legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
@@ -190,8 +206,14 @@ gfitcomb<-rbind(gfit2,gfit3,gfit4)
 gfitcomb$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),
 levels=c("2 clusters", "3 clusters", "4 clusters"))
 
+
+# Labels for R^2
+lb2 = paste("R^2==",round(summary(fit2)$r.squared,2))
+lb3 = paste("R^2==",round(summary(fit3)$r.squared,2))
+lb4 = paste("R^2==",round(summary(fit4)$r.squared,2))
+
 gfit<-ggplot(gfitcomb,aes(x=x,y=y))+geom_point(color="gray35",alpha=0.2)+
-  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm",color="red3")+
+  stat_smooth(formula=y ~ poly(x, 1),se = TRUE,method = "lm",color="green3")+
   theme_bw()+
   scale_y_continuous(breaks = c(-0.01,0,1.5,3,4.5,6),
   labels=c("",0,1.5,3,4.5,6))+
@@ -204,14 +226,16 @@ gfit<-ggplot(gfitcomb,aes(x=x,y=y))+geom_point(color="gray35",alpha=0.2)+
         axis.title.x = element_text(vjust = 0.5),
         text = element_text(size = 20))+xlab("Observed")+
   ylab("Predicted")+
-  facet_wrap(~case)
+  facet_wrap(~case)+
+  annotate("text",
+label = c(lb2,lb3,lb4), size = 5, x = 1.25, y = 5.5,parse=TRUE)
 
 
 grid.arrange(gdiff, gfit, ncol = 1,nrow=2)
-quartz.save(type = 'pdf', file = 'diag_BPT.pdf',width = 10, height = 7)
+quartz.save(type = 'pdf', file = 'diag_BPT.pdf',width = 9, height = 7)
 #
 
-sum(residuals(fit4, type = "pearson")^2)
+#sum(residuals(fit4, type = "pearson")^2)
 
 
 
@@ -260,12 +284,12 @@ gcomb_WHAN<-rbind(d0_WHAN.m,d2_WHAN.m,d3_WHAN.m,d4_WHAN.m)
 gcomb_WHAN$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("Data",
                                                                                              "2 clusters", "3 clusters", "4 clusters"))
 colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
-# Plot difference between geyser2 and geyser1 density
+# Plot difference 
 ggplot(gcomb_WHAN, aes(x, y, z=z, fill=z)) +
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log EW(H', alpha, ')'))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
-  scale_fill_gradientn(colours=colors) +
+  scale_fill_gradientn(colours=colors2) +
   coord_cartesian(xlim=xrng_w, ylim=yrng_w) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
@@ -275,8 +299,9 @@ ggplot(gcomb_WHAN, aes(x, y, z=z, fill=z)) +
         legend.position="none",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 20,family="serif"))+
+        text = element_text(size = 20))+
   facet_wrap(~case)
+quartz.save(type = 'pdf', file = 'simulation_WHAN.pdf',width = 9, height = 8)
 #---------------------------------##---------------------------------#
 
 diff02_WHAN <- d0_WHAN  
@@ -308,21 +333,21 @@ gdiff_w<-ggplot(diffcomb_WHAN, aes(x, y, z=z)) +
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log EW(H', alpha, ')'))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e3,geom="polygon")+
-  scale_fill_gradient2(low="blue4", mid="white", high="red",midpoint = 0) +
+  scale_fill_gradient2(low="blue4", mid="white", high="darkred",midpoint = 0) +
   coord_cartesian(xlim=xrng_w, ylim=yrng_w) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
-        #        panel.grid.major.x = element_blank(),
-        #        panel.grid.minor.x = element_blank(),
-        #        panel.grid.major.y = element_blank(),
-        #        panel.grid.minor.y = element_blank(),
+                panel.grid.major.x = element_blank(),
+                panel.grid.minor.x = element_blank(),
+                panel.grid.major.y = element_blank(),
+                panel.grid.minor.y = element_blank(),
         legend.background = element_rect(fill="white"),
         legend.key = element_rect(fill = "white",color = "white"),
         plot.background = element_rect(fill = "white"),
         legend.position="none",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 25,family="serif"))+
+        text = element_text(size = 20))+
   facet_wrap(~case)
 #---------------------------------##---------------------------------#
 
@@ -335,7 +360,7 @@ pred2_WHAN<-as.numeric(d2_WHAN$z)
 pred3_WHAN<-as.numeric(d3_WHAN$z)
 pred4_WHAN<-as.numeric(d4_WHAN$z)
 
-fit2_WHAN<-lm(ob_WHANs~pred2_WHAN)
+fit2_WHAN<-lm(obs_WHAN~pred2_WHAN)
 fit3_WHAN<-lm(obs_WHAN~pred3_WHAN)
 fit4_WHAN<-lm(obs_WHAN~pred4_WHAN)
 
@@ -347,8 +372,13 @@ gfitcomb_WHAN<-rbind(gfit2_WHAN,gfit3_WHAN,gfit4_WHAN)
 gfitcomb_WHAN$case <- factor(rep(c("2 clusters","3 clusters","4 clusters"),each=1e4),
                         levels=c("2 clusters", "3 clusters", "4 clusters"))
 
+# Labels for R^2
+wb2 = paste("R^2==",round(summary(fit2_WHAN)$r.squared,2))
+wb3 = paste("R^2==",round(summary(fit3_WHAN)$r.squared,2))
+wb4 = paste("R^2==",round(summary(fit4_WHAN)$r.squared,2))
+
 gfit_w<-ggplot(gfitcomb_WHAN,aes(x=x,y=y))+geom_point(color="gray80")+
-  stat_smooth(formula=y ~ poly(x, 2),se = TRUE,method = "lm",color="red3")+
+  stat_smooth(formula=y ~ poly(x, 1),se = TRUE,method = "lm",color="green3")+
   theme_bw()+
   scale_y_continuous(breaks = c(-0.01,0,1.5,3,4.5,6),
                      labels=c("",0,1.5,3,4.5,6))+
@@ -359,15 +389,17 @@ gfit_w<-ggplot(gfitcomb_WHAN,aes(x=x,y=y))+geom_point(color="gray80")+
         legend.position="top",
         axis.title.y = element_text(vjust = 0.1,margin=margin(0,10,0,0)),
         axis.title.x = element_text(vjust = 0.5),
-        text = element_text(size = 25))+xlab("Observed")+
+        text = element_text(size = 20))+xlab("Observed")+
   ylab("Predicted")+
-  facet_wrap(~case)
+  facet_wrap(~case)+
+  annotate("text",
+label = c(wb2,wb3,wb4), size = 5, x = 1.25, y = 4.75,parse=TRUE)
 
 
 grid.arrange(gdiff_w, gfit_w, ncol = 1,nrow=2)
+quartz.save(type = 'pdf', file = 'diag_WHAN.pdf',width = 9, height = 7)
 
 
-sum(residuals(fit4, type = "pearson")^2)
 
 
 
@@ -408,27 +440,30 @@ def.font.size   <- 1.5
 label.font.size <- 2
 grid.lwd        <- 3
 
-mypal = pal_npg("nrc", alpha = 0.7)(4)
-mypal
+#mypal = pal_npg("nrc", alpha = 0.7)(4)
+mypal = c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00")
 
 group.col <- mypal
 source("rgl_add_axes.R")
+#plot3d(x,y, z,  box = F,
+#       type ="p", size=0.01,alpha=0.1,xlab = "EWHa", ylab = "LogNII_Ha", 
+#       zlab = "LogOIII_Hb",col="gray90")
 plot3d(x,y, z,  box = F,
-       type ="p", size=0.01,alpha=0.1,xlab = "EWHa", ylab = "LogNII_Ha", 
-       zlab = "LogOIII_Hb",col="gray90")
+              type ="p", size=0.01,alpha=0.1,xlab = "x", ylab = "y", 
+              zlab = "z",col="gray90",cex=2)
 # Add bounding box decoration
 #rgl.bbox(color=c("gray90","black"),  shininess=3, alpha=0.8, nticks = 3 ) 
 #rgl_add_axes(x, y, z, show.bbox = FALSE)
-plot3d(ellips, col = mypal[1], alpha = 0.45, type = "shade",add = TRUE)
-plot3d(ellips2, col = mypal[2], alpha = 0.45, add = T, type = "shade")
-plot3d(ellips3, col = mypal[3], alpha = 0.45, add = T, type = "shade")
-plot3d(ellips4, col = mypal[4], alpha = 0.45, add = TRUE, type = "shade")
+plot3d(ellips, col = mypal[1], alpha = 0.95, type = "wire",add = TRUE)
+plot3d(ellips2, col = mypal[2], alpha = 0.95, add = T, type = "wire")
+plot3d(ellips3, col = mypal[3], alpha = 0.95, add = T, type = "wire")
+plot3d(ellips4, col = mypal[4], alpha = 0.95, add = TRUE, type = "wire")
 aspect3d(1,1,1)
 ## Add the grid
-#grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
+grid3d(side = c('x+','y+','z-'), lwd=grid.lwd)
 
 
-rgl.snapshot("3D_ellipses2.png", fmt="png", top=TRUE )
+rgl.snapshot("3D_ellipses.png", fmt="png", top=TRUE )
 
 
 
