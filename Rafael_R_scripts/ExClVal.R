@@ -28,6 +28,7 @@ class<-iris$Species
 
 # Function to performe cluster comparison
 ExClVal <- function(class = class, clust = clust){
+require(LaplacesDemon)
 class  <- as.factor(class)
 
 # Find number of clusters and classes
@@ -59,6 +60,11 @@ ldaResult <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 prediction <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 clusterProjected <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 classProjected <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+minRange <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+maxRange <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+pdfCluster <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+pdfClass <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+KL <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 for (i in 1:Ncluster){
 for (j in 1:Nclass){  
  data[[i,j]] = rbind(cluster_sep[[i]], class_sep[[j]])
@@ -68,29 +74,36 @@ for (j in 1:Nclass){
 #Getting projected matrices for cluster and class from predicted values
 clusterProjected[[i,j]] = prediction[[i,j]]$x[1:nrow(cluster_sep[[i]]),]
 classProjected[[i,j]] = prediction[[i,j]]$x[(nrow(cluster_sep[[i]])+1):(dim(data[[i,j]])[1]),]  
-}
-}
-
-
-
-
-
-
-  
+#Get probability density for each cluster and class
 
 #Extending the range so that both densities are within minimum 
 #and maximum of obtained density values
-  minRange = min(clusterProjected, classProjected)
-  maxRange = max(clusterProjected, classProjected)
-  
- pdfCluster = density(clusterProjected, from= minRange-1, to=maxRange+1)
- pdfClass = density(classProjected, from= minRange-1, to=maxRange+1) 
-  
-  #Get probability density from the densities
-  pdfCluster$y = pdfCluster$y/sum(pdfCluster$y)
-  pdfClass$y = pdfClass$y/sum(pdfClass$y)
-  
-  #Plot the probability densities of cluster and class
+minRange[[i,j]] = min(clusterProjected[[i,j]], classProjected[[i,j]])
+maxRange[[i,j]] = max(clusterProjected[[i,j]], classProjected[[i,j]])
+
+pdfCluster[[i,j]] = density(clusterProjected[[i,j]], from= minRange[[i,j]]-1, to=maxRange[[i,j]]+1)
+pdfClass[[i,j]] = density(classProjected[[i,j]], from= minRange[[i,j]]-1, to=maxRange[[i,j]]+1) 
+
+#Get probability density from the densities
+pdfCluster[[i,j]]$y = pdfCluster[[i,j]]$y/sum(pdfCluster[[i,j]]$y)
+pdfClass[[i,j]]$y = pdfClass[[i,j]]$y/sum(pdfClass[[i,j]]$y)
+# Calcualte K-L distance using package Laplace Demon
+KL[[i,j]] <- KLD(pdfCluster[[i,j]]$y,pdfClass[[i,j]]$y)$mean.sum.KLD
+}
+}
+return(list(KL=KL))
+}
+
+plot(range(pdfCluster[[1,1]]$x, pdfClass[[1,1]]$x), range(pdfCluster[[1,1]]$y, pdfClass[[1,1]]$y),
+     type="n", xlab="X values for both distributions", ylab="Probability Density",
+     main="Probability density plots")
+lines(pdfClass[[1,1]], col="blue")
+lines(pdfCluster[[1,1]], col="red")
+legend("topleft", legend=c("Cluster", "Class"), col=c("red", "blue"), 
+       lty=c(1,1))
+
+
+#Plot the probability densities of cluster and class
   plot(range(pdfCluster$x, pdfClass$x), range(pdfCluster$y, pdfClass$y), 
        type="n", xlab="X values for both distributions", ylab="Probability Density",
        main="Probability density plots")
