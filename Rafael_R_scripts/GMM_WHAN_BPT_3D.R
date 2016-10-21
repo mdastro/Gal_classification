@@ -8,6 +8,7 @@ source("gg_ellipse.R")
 source("plot_BPT.R")
 source("plot_WHAN.R")
 
+set.seed(42)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 # Read and store data
 #AGN<- read.table("/Users/rafael/Dropbox/artigos/Meusartigos/IAA-WGC/Github/Gal_classification/Dataset/class_WHAN_BPT.dat",header=F)

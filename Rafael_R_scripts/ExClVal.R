@@ -71,8 +71,8 @@ classProjected[[i,j]] = prediction[[i,j]]$x[(nrow(cluster_sep[[i]])+1):(dim(data
 minRange[[i,j]] = min(clusterProjected[[i,j]], classProjected[[i,j]])
 maxRange[[i,j]] = max(clusterProjected[[i,j]], classProjected[[i,j]])
 
-pdfCluster[[i,j]] = density(clusterProjected[[i,j]], from = minRange[[i,j]]-0.1, to=maxRange[[i,j]]+0.1,n=1024)
-pdfClass[[i,j]] = density(classProjected[[i,j]], from = minRange[[i,j]]-0.1, to=maxRange[[i,j]]+0.1,n=1024) 
+pdfCluster[[i,j]] = density(clusterProjected[[i,j]], from = minRange[[i,j]]-5, to=maxRange[[i,j]]+5,n=1024)
+pdfClass[[i,j]] = density(classProjected[[i,j]], from = minRange[[i,j]]-5, to=maxRange[[i,j]]+5,n=1024) 
 #pdfCluster[[i,j]] = density(clusterProjected[[i,j]])
 #pdfClass[[i,j]] = density(classProjected[[i,j]]) 
 
