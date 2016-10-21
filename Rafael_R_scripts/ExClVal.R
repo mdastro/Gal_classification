@@ -1,34 +1,22 @@
-#read the data in and eliminate the class variable for the clustering process
-dataSet = iris 
-dataSet$Species = as.factor(dataSet$Species)
-dataForClustering = dataSet[,-5]
+fancy_scientific <- function(l) {
+  
+  # turn in to character string in scientific notation
 
-#Perform EM clustering through EMCluster algorithm package
-set.seed(100)
-emobj = simple.init(dataForClustering, nclass=3)
-clusterResult = emcluster(dataForClustering, emobj, assign.class=TRUE)
+  l <- format(l, scientific = TRUE)
+  # quote the part before the exponent to keep all the digits
+  l <- gsub("^(.*)e", "'\\1'e", l)
+  # turn the 'e+' into plotmath format
+  l <- gsub("e", "%*%10^", l)
+  # return this as an expression
+  parse(text=l)
 
-# Plotting the clustering results
-plotem(clusterResult, dataForClustering)
-
-#separate individual clusters from clustering result
-cluster1 = dataForClustering[(clusterResult$class==1),]
-cluster2 = dataForClustering[(clusterResult$class==2),]
-cluster3 = dataForClustering[(clusterResult$class==3),]
-
-
-#separate individual classes from original classification
-class1 = dataSet[(dataSet$Species  == "setosa"),-5]
-class2 = dataSet[(dataSet$Species  == "versicolor"),-5]
-class3 = dataSet[(dataSet$Species  == "virginica"),-5]
-
-
-clust<-Mclust(iris[,1:4],G=6)
-class<-iris$Species
-
-# Function to performe cluster comparison
-ExClVal <- function(class = class, clust = clust){
+}
+# Function to perform cluster comparison
+ExClVal <- function(class = class, clust = clust, data = data){
 require(LaplacesDemon)
+require(scales)
+require(MASS)
+require(ggplot2)
 class  <- as.factor(class)
 
 # Find number of clusters and classes
@@ -38,7 +26,7 @@ Ncluster <- clust$G
 cluster_sep <- list()
 # Separate individual clusters 
 for(i in 1:Ncluster){
-cluster_sep[[i]] = as.data.frame(clust$data[(clust$classification ==i),])
+cluster_sep[[i]] = as.data.frame(data[(clust$classification ==i),])
 cluster_sep[[i]] = cbind(cluster_sep[[i]],label=rep(LETTERS[i],nrow(cluster_sep[[i]])),
                          deparse.level = 2)
 }
@@ -46,7 +34,7 @@ cluster_sep[[i]] = cbind(cluster_sep[[i]],label=rep(LETTERS[i],nrow(cluster_sep[
 class_sep <- list()
 # Separate individual clusters 
 for(i in 1:Nclass){
-  class_sep[[i]] = as.data.frame(clust$data[(class == levels(class)[i]),])
+  class_sep[[i]] = as.data.frame(data[(class == levels(class)[i]),])
   class_sep[[i]] = cbind(class_sep[[i]],label=class[class == levels(class)[i]])
   
 }
@@ -66,6 +54,7 @@ pdfCluster <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 pdfClass <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 KL <- matrix(list(),nrow=Ncluster,ncol=Nclass)
 gg <- matrix(list(),nrow=Ncluster,ncol=Nclass)
+clcolor <- c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00")
 for (i in 1:Ncluster){
 for (j in 1:Nclass){  
  data[[i,j]] = rbind(cluster_sep[[i]], class_sep[[j]])
@@ -82,57 +71,52 @@ classProjected[[i,j]] = prediction[[i,j]]$x[(nrow(cluster_sep[[i]])+1):(dim(data
 minRange[[i,j]] = min(clusterProjected[[i,j]], classProjected[[i,j]])
 maxRange[[i,j]] = max(clusterProjected[[i,j]], classProjected[[i,j]])
 
-pdfCluster[[i,j]] = density(clusterProjected[[i,j]], from= minRange[[i,j]]-1, to=maxRange[[i,j]]+1)
-pdfClass[[i,j]] = density(classProjected[[i,j]], from= minRange[[i,j]]-1, to=maxRange[[i,j]]+1) 
+pdfCluster[[i,j]] = density(clusterProjected[[i,j]], from = minRange[[i,j]]-0.1, to=maxRange[[i,j]]+0.1,n=1024)
+pdfClass[[i,j]] = density(classProjected[[i,j]], from = minRange[[i,j]]-0.1, to=maxRange[[i,j]]+0.1,n=1024) 
+#pdfCluster[[i,j]] = density(clusterProjected[[i,j]])
+#pdfClass[[i,j]] = density(classProjected[[i,j]]) 
 
 #Get probability density from the densities
 pdfCluster[[i,j]]$y = pdfCluster[[i,j]]$y/sum(pdfCluster[[i,j]]$y)
 pdfClass[[i,j]]$y = pdfClass[[i,j]]$y/sum(pdfClass[[i,j]]$y)
 # Calcualte K-L distance using package Laplace Demon
-KL[[i,j]] <- KLD(pdfCluster[[i,j]]$y,pdfClass[[i,j]]$y)$mean.sum.KLD
+
+
+KL[[i,j]] <- KLD(pdfCluster[[i,j]]$y,pdfClass[[i,j]]$y,base=2)$mean.sum.KLD
 
 # Plot density of cluster vs classes
 
 gg[[i,j]] <- ggplot(
 data=data.frame(x=pdfCluster[[i,j]]$x,y=pdfCluster[[i,j]]$y),aes(x=x,y=y))+
-  geom_line()+
-  geom_line(data=data.frame(x=pdfClass[[i,j]]$x,y=pdfClass[[i,j]]$y),aes(x=x,y=y),
-            linetype="dashed")
+  geom_polygon(data=data.frame(x=pdfClass[[i,j]]$x,y=pdfClass[[i,j]]$y),aes(x=x,y=y),
+            fill="gray80",size=1.25,alpha=0.7)+
+  geom_polygon(linetype="dashed",fill = clcolor[i],alpha=0.4)+
+  theme_bw()+
+   scale_y_continuous(labels=fancy_scientific,
+                      breaks=pretty_breaks())+
+ theme(legend.position = "none",plot.title = element_text(hjust=0.5),
+        axis.title.y=element_text(vjust=0.75),
+        axis.title.x=element_text(vjust=-0.25),
+        text = element_text(size=15))+xlab("LD1")+ylab("Density")+
+  ggtitle(paste("G",i,"/",levels(class)[j],sep="")) 
+#+
+
+#  annotate("text",  x=Inf, y = Inf, label = paste("Cluster ",i,sep=""), vjust=3, hjust=1.5,size=5,
+#           color="red3")+
+ # annotate("text",  x=Inf, y = Inf, label = levels(class)[j], vjust=5, hjust=1.5,size=5,
+ #          color="blue3")
 
 }
 }
 z <- matrix(unlist(KL),nrow=nrow(KL),ncol=ncol(KL))
+rownames(z) <- c(seq(1:Ncluster))
+colnames(z) <- c(levels(class))
 return(list(KL=z,
             pdfCluster = pdfCluster,
             pdfClass = pdfClass,
             gg=gg))
 }
 
-fit<- ExClVal(class,clust)
-
-g1 <- data.frame(fit$pdfCluster[[1,1]]$x)
-ggplot()
-
-plot(range(pdfCluster[[1,1]]$x, pdfClass[[1,1]]$x), range(pdfCluster[[1,1]]$y, pdfClass[[1,1]]$y),
-     type="n", xlab="X values for both distributions", ylab="Probability Density",
-     main="Probability density plots")
-lines(pdfClass[[1,1]], col="blue")
-lines(pdfCluster[[1,1]], col="red")
-legend("topleft", legend=c("Cluster", "Class"), col=c("red", "blue"), 
-       lty=c(1,1))
 
 
-#Plot the probability densities of cluster and class
-  plot(range(pdfCluster$x, pdfClass$x), range(pdfCluster$y, pdfClass$y), 
-       type="n", xlab="X values for both distributions", ylab="Probability Density",
-       main="Probability density plots")
-  lines(pdfClass, col="blue")
-  lines(pdfCluster, col="red")
-  legend("topleft", legend=c("Cluster", "Class"), col=c("red", "blue"), 
-         lty=c(1,1))
-  
-  
-  
-  
-  
   
