@@ -77,10 +77,9 @@ pdfClass[[i,j]] = density(classProjected[[i,j]], from = minRange[[i,j]]-5, to=ma
 #pdfClass[[i,j]] = density(classProjected[[i,j]]) 
 
 #Get probability density from the densities
-pdfCluster[[i,j]]$y = pdfCluster[[i,j]]$y/sum(pdfCluster[[i,j]]$y)
-pdfClass[[i,j]]$y = pdfClass[[i,j]]$y/sum(pdfClass[[i,j]]$y)
+pdfCluster[[i,j]]$y = pdfCluster[[i,j]]$y/max(pdfCluster[[i,j]]$y)
+pdfClass[[i,j]]$y = pdfClass[[i,j]]$y/max(pdfClass[[i,j]]$y)
 # Calcualte K-L distance using package Laplace Demon
-
 
 KL[[i,j]] <- KLD(pdfCluster[[i,j]]$y,pdfClass[[i,j]]$y,base=2)$mean.sum.KLD
 
@@ -92,8 +91,7 @@ data=data.frame(x=pdfCluster[[i,j]]$x,y=pdfCluster[[i,j]]$y),aes(x=x,y=y))+
             fill="gray80",size=1.25,alpha=0.7)+
   geom_polygon(linetype="dashed",fill = clcolor[i],alpha=0.4)+
   theme_bw()+
-   scale_y_continuous(labels=fancy_scientific,
-                      breaks=pretty_breaks())+
+   scale_y_continuous(breaks=pretty_breaks())+
  theme(legend.position = "none",plot.title = element_text(hjust=0.5),
         axis.title.y=element_text(vjust=0.75),
         axis.title.x=element_text(vjust=-0.25),
