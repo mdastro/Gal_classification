@@ -57,7 +57,7 @@ W4 <- plot_WHAN(CLUST4)
 
 
 grid.arrange(B2, B3,B4,W2,W3,W4, ncol = 3,nrow=2)
-quartz.save(type = 'pdf', file = 'Clusters_b.pdf',width = 12, height = 7.5)
+quartz.save(type = 'pdf', file = 'Figs/Clusters_b.pdf',width = 12, height = 7.5)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 
 # Residual Analysis 
@@ -78,16 +78,16 @@ yrng = range(AGN_short$yy_BPT)
 
 
 d0_BPT = kde2d(AGN_short$xx_BPT, AGN_short$yy_BPT, lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
+           h = rep(0.05, 2))
 d2_BPT = kde2d(sim2[,2],
            sim2[,3], lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
+           h = rep(0.05, 2))
 d3_BPT = kde2d(sim3[,2],
            sim3[,3], lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
+           h = rep(0.05, 2))
 d4_BPT = kde2d(sim4[,2],
            sim4[,3], lims=c(xrng, yrng), n=100,
-           h = rep(0.1, 2))
+           h = rep(0.05, 2))
 
 #---------------------------------##---------------------------------#
 # Plot smooth representation for original data and each cluster
@@ -114,14 +114,14 @@ gcomb$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1
 "2 clusters", "3 clusters", "4 clusters"))
 library(viridis)
 
-colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(30)
+colors <- colorRampPalette(c('white','cyan4','orange','red','darkred'))(30)
 colors2 <- c('white',plasma(30))
 # Plot difference 
- ggplot(gcomb , aes(x, y, z=z, fill=z)) +
+ ggplot(gcomb, aes(x, y, z=z, fill=z)) +
  xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log [OIII]/H', beta))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
-  scale_fill_gradientn(colours=colors2) +
+  scale_fill_gradientn(colours=colors) +
   coord_cartesian(xlim=xrng, ylim=yrng) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),
@@ -134,7 +134,7 @@ colors2 <- c('white',plasma(30))
         text = element_text(size = 20))+
   facet_wrap(~case)
  
- quartz.save(type = 'pdf', file = 'simulation_BPT.pdf',width = 9, height = 8)
+ quartz.save(type = 'pdf', file = 'Figs/simulation_BPT.pdf',width = 9, height = 8)
 #---------------------------------##---------------------------------#
 
 diff02 <- d0_BPT  
@@ -213,7 +213,7 @@ lb2 = paste("R^2==",round(summary(fit2)$r.squared,2))
 lb3 = paste("R^2==",round(summary(fit3)$r.squared,2))
 lb4 = paste("R^2==",round(summary(fit4)$r.squared,2))
 
-gfit<-ggplot(gfitcomb,aes(x=x,y=y))+geom_point(color="gray35",alpha=0.2)+
+gfit<-ggplot(gfitcomb,aes(x=x,y=y))+geom_point(color="gray80")+
   stat_smooth(formula=y ~ poly(x, 1),se = TRUE,method = "lm",color="green3")+
   theme_bw()+
   scale_y_continuous(breaks = c(-0.01,0,1.5,3,4.5,6),
@@ -233,7 +233,7 @@ label = c(lb2,lb3,lb4), size = 5, x = 1.25, y = 5.5,parse=TRUE)
 
 
 grid.arrange(gdiff, gfit, ncol = 1,nrow=2)
-quartz.save(type = 'pdf', file = 'diag_BPT.pdf',width = 9, height = 7)
+quartz.save(type = 'pdf', file = 'Figs/diag_BPT.pdf',width = 9, height = 7)
 #
 
 #sum(residuals(fit4, type = "pearson")^2)
@@ -250,16 +250,16 @@ yrng_w = range(AGN_short$yy_WHAN)
 
 
 d0_WHAN = kde2d(AGN_short$xx_BPT, AGN_short$yy_WHAN, lims=c(xrng_w, yrng_w), n=100,
-               h = rep(0.1, 2))
+               h = rep(0.05, 2))
 d2_WHAN = kde2d(sim2[,2],
                sim2[,4], lims=c(xrng_w, yrng_w), n=100,
-               h = rep(0.1, 2))
+               h = rep(0.05, 2))
 d3_WHAN = kde2d(sim3[,2],
                sim3[,4], lims=c(xrng_w, yrng_w), n=100,
-               h = rep(0.1, 2))
+               h = rep(0.05, 2))
 d4_WHAN = kde2d(sim4[,2],
                sim4[,4], lims=c(xrng_w, yrng_w), n=100,
-               h = rep(0.1, 2))
+               h = rep(0.05, 2))
 
 #---------------------------------##---------------------------------#
 # Plot smooth representation for original data and each cluster
@@ -284,13 +284,13 @@ names(d4_WHAN.m) = c("x","y","z")
 gcomb_WHAN<-rbind(d0_WHAN.m,d2_WHAN.m,d3_WHAN.m,d4_WHAN.m)
 gcomb_WHAN$case <- factor(rep(c("Data","2 clusters","3 clusters","4 clusters"),each=1e4),levels=c("Data",
                                                                                              "2 clusters", "3 clusters", "4 clusters"))
-colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
+#colors <- colorRampPalette(c('white','blue','yellow','red','darkred'))(20)
 # Plot difference 
 ggplot(gcomb_WHAN, aes(x, y, z=z, fill=z)) +
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log EW(H', alpha, ')'))) +
   stat_contour(aes(fill =..level..,alpha=..level..), bins=5e2,geom="polygon") +
-  scale_fill_gradientn(colours=colors2) +
+  scale_fill_gradientn(colours=colors) +
   coord_cartesian(xlim=xrng_w, ylim=yrng_w) +
   guides(colour=FALSE)+theme_bw()+
   theme(panel.background = element_rect(fill="white"),

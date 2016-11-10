@@ -25,10 +25,9 @@ Dat$WHAN_name <- revalue(Dat$WHAN_name, c("1"="SF","2"="sAGN","3"="wAGN","4"="re
 
 # Plotting the clustering results
 clust<-CLUST4
+
 class<-Dat$BPT_name
 data <- AGN_short[,1:2]
-
-
 
 class2<-Dat$WHAN_name
 data2 <- AGN_short[,c(1,3)]
@@ -36,24 +35,47 @@ data2 <- AGN_short[,c(1,3)]
 
 
 
+fit0<- ExClVal(class,clust,data=data)
 fit<- ExClVal(class2,clust,data=data2)
 
+bbb<-1-fit0$KL
+bbb[bbb<=0.93]<-0
 
-ccc<-1-fit$KL
-ccc[ccc<=0.95]<-0
-circlize::chordDiagram(ccc,directional = 1)
+pdf("Figs/chord_bpt.pdf",width = 5,height = 5)
+chordDiagram(bbb,directional = 1,
+row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"),
+grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
+                                              "gray","gray","gray"))
+dev.off()
+
+www<-1-fit$KL
+www[www<=0.95]<-0
+pdf("Figs/chord_whan.pdf",width = 5,height = 5)
+chordDiagram(www,directional = 1,row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"),
+                       grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
+                                  "gray","gray","gray","gray"))
+dev.off()
 
 
-pdf("mosaic2.pdf",width = 12,height = 12)
+
+
+
+pdf("mosaic_bpt.pdf",width = 12,height = 8)
+grid.arrange(fit0$gg[[1,1]],fit0$gg[[2,1]],fit0$gg[[3,1]],fit0$gg[[4,1]],
+             fit0$gg[[1,2]],fit0$gg[[2,2]],fit0$gg[[3,2]],fit0$gg[[4,2]],
+             fit0$gg[[1,3]],fit0$gg[[2,3]],fit0$gg[[3,3]],fit0$gg[[4,3]],
+             ncol=4,nrow=3)
+dev.off()
+
+
+
+pdf("mosaic_whan.pdf",width = 12,height = 12)
 grid.arrange(fit$gg[[1,1]],fit$gg[[2,1]],fit$gg[[3,1]],fit$gg[[4,1]],
              fit$gg[[1,2]],fit$gg[[2,2]],fit$gg[[3,2]],fit$gg[[4,2]],
              fit$gg[[1,3]],fit$gg[[2,3]],fit$gg[[3,3]],fit$gg[[4,3]],
              fit$gg[[1,4]],fit$gg[[2,4]],fit$gg[[3,4]],fit$gg[[4,4]],
              ncol=4,nrow=4)
 dev.off()
-
-
-plot(AGN_short[,1],AGN_short[,2],col=CLUST4$classification)
 
 
 
