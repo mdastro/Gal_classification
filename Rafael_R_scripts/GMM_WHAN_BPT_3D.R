@@ -33,16 +33,17 @@ rm(AGN)
 
 CLUST2 <- Mclust(AGN_short,G = 2,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                 modelName = "VVV")#Initialization with 1000 for higher speed
+set.seed(42)
 CLUST3 <- Mclust(AGN_short,G = 3,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")#Initialization with 1000 for higher speed
-
+set.seed(42)
 CLUST4 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")#Initialization with 1000 for higher speed
 
-Dat$GMM_class_3 <- CLUST3$classification
+#Dat$GMM_class_3 <- CLUST3$classification
 Dat$GMM_class_4 <- CLUST4$classification
-dat2 <-data.frame(AGN_short,Dat[,c(4,5,11,12,13,14)])
-write.csv(dat2,"..//Dataset/all_classifications.csv",row.names=F)
+dat2 <-data.frame(AGN_short,Dat[,c(1,2,3,4,5,11,12,13,14,15)])
+write.csv(dat2,"..//Dataset/data_with_GMM_4.csv",row.names=F)
 
 # Export data for post-processing
 

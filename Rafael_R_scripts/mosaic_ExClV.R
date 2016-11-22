@@ -3,6 +3,7 @@ require(mclust)
 require(reshape2)
 library(plyr)
 library(gridExtra)
+library(circlize)
 Dat <- read.csv("..//Dataset/Class_WHAN_BPT_D4.csv",header=T)
 AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
                   yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
