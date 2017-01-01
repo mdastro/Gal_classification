@@ -4,10 +4,9 @@
 """
     Tables Match (my table with STARLIGHT SDSS DR7 tables) -- features needed for machine learning in order to classify
     galaxies
-    This version: added signal-to-noise in the end of the file
     @author:  Maria Luiza Linhares Dantas
-    @date:    2016.26.08
-    @version: 0.0.3
+    @date:    2016.22.08
+    @version: 0.0.1
 """
 
 from __future__ import division
@@ -27,6 +26,7 @@ if __name__ == '__main__':
     print ("Tables read ok!")
 
     # The program itself -----------------------------------------------------------------------------------------------
+
     # Creating a dictionary --------------------------------------------------------------------------------------------
 
     my_dictionary = {}

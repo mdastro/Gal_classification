@@ -5,7 +5,7 @@
     This python program plots the BPT and WHAN diagrams using the SEABORN package.
     @author:  Maria Luiza Linhares Dantas
     @date:    2016.14.12
-    @version: 0.0.3
+    @version: 0.0.2
 """
 
 from __future__ import division

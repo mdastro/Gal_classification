@@ -20,6 +20,7 @@ if __name__ == '__main__':
     # Configuring the inputs -------------------------------------------------------------------------------------------
     my_data    = np.loadtxt('/home/mldantas/Dropbox/Clustering/dataset_clustering_abs.csv', delimiter=',', dtype=str)
     lines      = '/home/mldantas/Dropbox/STARLIGHT/lines.txt'
+    lines_all  = '/home/mldantas/Documents/STARLIGHT/Tabelas/Lines_all.txt'
     # syn02      = '/home/mldantas/Dropbox/STARLIGHT/SYN02_MALU.txt'
     dn4000_txt = '/home/mldantas/Dropbox/STARLIGHT/dn4000_MALU.txt'
 
@@ -27,6 +28,7 @@ if __name__ == '__main__':
     # Creating a dictionary --------------------------------------------------------------------------------------------
     lines_table  = np.loadtxt(lines, dtype=object)
     dn4000_table = np.loadtxt(dn4000_txt, dtype=object)
+    l_all_table  = np.loadtxt(lines_all, dtype=object)
     # syn02        = np.loadtxt(syn02, dtype=object)
 
     print ("Tables read ok!")
@@ -50,6 +52,11 @@ if __name__ == '__main__':
     for j in range((lines_table[0, :]).size):
         lines_dictionary[lines_table[0, j]] = np.array(lines_table[0 + 1:, j], dtype=str)
     print ("Lines' Table Dictionary read ok!")
+
+    l_all_dictionary = {}
+    for t in range((l_all_table[0, :]).size):
+        l_all_dictionary[l_all_table[0, t]] = np.array(l_all_table[0 + 1:, t], dtype=str)
+    print ("Lines ALL Table Dictionary read ok!")
 
     # Reading the data and performing the cross-match ------------------------------------------------------------------
     my_plate     = my_dictionary['plate'].astype(int)
@@ -75,6 +82,13 @@ if __name__ == '__main__':
     lines_fiberid = lines_dictionary['fiberID'].astype(int)
 
     print("Line's table size is %d" % lines_plate.size)
+
+    l_all_ids = l_all_dictionary['id'].astype(str)
+    print ("Teste: Lines ALL table works? Print object %s" % l_all_ids[0])
+    l_all_sii_6717 = l_all_dictionary['F_6717'].astype(float)
+    l_all_sii_6731 = l_all_dictionary['F_6731'].astype(float)
+    l_all_oi_6300  = l_all_dictionary['F_6300'].astype(float)
+    l_all_oii_3727 = l_all_dictionary['F_3727'].astype(float)
 
     print ("Parameters input ok!")
 
@@ -146,7 +160,40 @@ if __name__ == '__main__':
     my_dn4000_fiberid = dn4000_fiberid[dn4000_data_index]
 
     print ("Dn4000 match ok!")
-    datetime.datetime.now().time()
+
+    l_all_plate   = []
+    l_all_mjd     = []
+    l_all_fiberid = []
+    for l in range(l_all_ids.size):
+        l_all_plate_i   = l_all_ids[l].split('.')[0]
+        l_all_mjd_i     = l_all_ids[l].split('.')[1]
+        l_all_fiberid_i = l_all_ids[l].split('.')[2]
+        l_all_plate.append(int(l_all_plate_i))
+        l_all_mjd.append(int(l_all_mjd_i))
+        l_all_fiberid.append(int(l_all_fiberid_i))
+    l_all_plate   = np.array(l_all_plate)
+    l_all_mjd     = np.array(l_all_mjd)
+    l_all_fiberid = np.array(l_all_fiberid)
+
+    print ("Lines ALL read with ids ok!")
+
+    l_all_indexes = np.arange(my_plate.size)
+    l_all_data_index = []
+    for m in range(l_all_plate.size):
+        l_all_data_index_m = l_all_indexes[(my_plate == l_all_plate[m]) * (my_mjd == l_all_mjd[m]) *
+                                             (my_fiberid == l_all_fiberid[m])]
+        if l_all_data_index_m.size is 0:
+            continue
+        l_all_data_index.append(m)
+    my_l_all_plate   = l_all_plate[l_all_data_index]
+    my_l_all_mjd     = l_all_mjd[l_all_data_index]
+    my_l_all_fiberid = l_all_fiberid[l_all_data_index]
+    my_l_all_oi_6300 = l_all_oi_6300[l_all_data_index]
+    my_l_all_oii_3727 = l_all_oii_3727[l_all_data_index]
+    my_l_all_sii_6717 = l_all_sii_6717[l_all_data_index]
+    my_l_all_sii_6731 = l_all_sii_6717[l_all_data_index]
+
+    print ("Lines ALL match ok!")
 
     ## Lines crossmatch ------------------------------------------------------------------------------------------------
     indexes = np.arange(my_plate.size)
@@ -170,11 +217,12 @@ if __name__ == '__main__':
     print ("Saving the dataset! YES!")
 
     # Saving the resulting dataset -------------------------------------------------------------------------------------
-    np.savetxt('/home/mldantas/Dropbox/Clustering/learning_parameters.csv',
+    np.savetxt('/home/mldantas/Dropbox/Clustering/learning_parameters_a.csv',
                np.column_stack((my_plate, my_mjd, my_fiberid, my_dn4000_obs, my_dn4000_synth, my_h_alpha, my_ew_h_alpha,
-                                my_h_beta, my_oiii, my_nii, my_vd_H_alpha, my_vd_H_beta, my_vd_nii, my_vd_oiii)),
+                                my_h_beta, my_oiii, my_nii, my_vd_H_alpha, my_vd_H_beta, my_vd_nii, my_vd_oiii,
+                                my_l_all_oi_6300, my_l_all_oii_3727, my_l_all_sii_6717, my_l_all_sii_6731)),
                fmt="%d,%d,%d,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f", delimiter=',', newline='\n',
                header='plate,mjd,fiber_id,dn4000_obs,dn4000_synth,H_alpha,EW_H_alpha,H_beta,OIII,NII,'
-                      'vd_Halpha,vd_Hbeta,vd_nii,vd_oiii')
+                      'vd_Halpha,vd_Hbeta,vd_nii,vd_oiii,oi_6300,oii_3727,sii_6717,sii_6731')
 
     print ("Done!")
