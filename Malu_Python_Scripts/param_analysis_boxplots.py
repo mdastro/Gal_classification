@@ -64,6 +64,8 @@ if __name__ == '__main__':
     age_w_flux         = my_dictionary['stellar_age_mass'].astype(float)
     age_w_mass         = my_dictionary['stellar_age_mass'].astype(float)
     dn4000             = my_dictionary['dn4000_synth'].astype(float)
+    class_whan         = my_dictionary['class_whan'].astype(int)
+    class_bpt          = my_dictionary['class_bpt'].astype(int)
 
     std_metallicity_flux = standardization(metallicity_w_flux)
     std_metallicity_mass = standardization(metallicity_w_mass)
@@ -100,9 +102,10 @@ if __name__ == '__main__':
         sns.set_style("white")
         plot01 = sns.boxplot(x=gmm_class, y=metallicity_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
+        # plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3])
         plt.setp(plot01.artists, alpha=1.)
         plt.ylabel(r"$<Z>$", fontsize=20)
-        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
+        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
         plt.tick_params('both', labelsize='15')
         # plt.ylim([-0.2, 1.5])
         # plt.xlim([-1, 2])
@@ -116,11 +119,11 @@ if __name__ == '__main__':
         # Plot02 -------------------------------------------------------------------------------------------------------
         plt.subplot(3, 1, 2)
         sns.set_style("white")
-        plot02 = sns.boxplot(x=gmm_class, y=age_w_mass, order=[4,1,3,2],
+        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
         plt.ylabel(r"$<t>$", fontsize=20)
-        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
+        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
         plt.tick_params('both', labelsize='15')
         # plt.ylim([-5, 5])
         # plt.xlim([-1, 2])
@@ -134,7 +137,7 @@ if __name__ == '__main__':
         # Plot03 -------------------------------------------------------------------------------------------------------
         plt.subplot(3, 1, 3)
         sns.set_style("white")
-        plot03 = sns.boxplot(x=gmm_class, y=dn4000, order=[4,1,3,2],
+        plot03 = sns.boxplot(x=class_whan, y=metallicity_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
         plt.ylabel(r"D$_{\rm n}$4000", fontsize=20)
@@ -148,6 +151,42 @@ if __name__ == '__main__':
         # plt.savefig('color_e.pdf', format='pdf')
         sns.axes_style({'legend.frameon': True})
         plot03.get_yaxis().set_label_coords(-0.05, 0.5)
+
+        # # Plot02 -------------------------------------------------------------------------------------------------------
+        # plt.subplot(3, 1, 2)
+        # sns.set_style("white")
+        # plot02 = sns.boxplot(x=gmm_class, y=age_w_mass, order=[4,1,3,2],
+        #                      palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
+        # plt.setp(plot01.artists, alpha=1.)
+        # plt.ylabel(r"$<t>$", fontsize=20)
+        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
+        # plt.tick_params('both', labelsize='15')
+        # # plt.ylim([-5, 5])
+        # # plt.xlim([-1, 2])
+        # # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
+        # # plot02.set_yscale("log", nonposy='clip')
+        # # sns.despine(left=True)
+        # # plt.savefig('color_e.pdf', format='pdf')
+        # sns.axes_style({'legend.frameon': True})
+        # plot02.get_yaxis().set_label_coords(-0.05, 0.5)
+        #
+        # # Plot03 -------------------------------------------------------------------------------------------------------
+        # plt.subplot(3, 1, 3)
+        # sns.set_style("white")
+        # plot03 = sns.boxplot(x=gmm_class, y=dn4000, order=[4,1,3,2],
+        #                      palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
+        # plt.setp(plot01.artists, alpha=1.)
+        # plt.ylabel(r"D$_{\rm n}$4000", fontsize=20)
+        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
+        # plt.tick_params('both', labelsize='15')
+        # # plt.ylim([-0.2, 1.5])
+        # # plt.xlim([-1, 2])
+        # # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
+        # # plot01.set_yscale("log", nonposy='clip')
+        # # sns.despine(left=True)
+        # # plt.savefig('color_e.pdf', format='pdf')
+        # sns.axes_style({'legend.frameon': True})
+        # plot03.get_yaxis().set_label_coords(-0.05, 0.5)
 
 
     plt.show()
