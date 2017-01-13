@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-    Violin Plot Using Seaborn Package in Python
+    Boxplot Plot Using Seaborn Package in Python
     @author:  Maria Luiza L. Dantas
-    @date:    2015.23.10
-    @version: 0.0.1
-
+    @date:    2017.01.12
+    @version: 0.0.2
 """
 
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 import numpy as np
 import pandas as pd
 import seaborn as sns
@@ -97,16 +97,21 @@ if __name__ == '__main__':
     # plt.show()
 
     with sns.axes_style('white', {'axes.grid': False}):
+
+        fig = plt.figure()
+        gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
+
         # Plot01 -------------------------------------------------------------------------------------------------------
-        plt.subplot(3, 1, 1)
+
+        ax0 = plt.subplot(gs[0])
         sns.set_style("white")
         plot01 = sns.boxplot(x=gmm_class, y=metallicity_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
-        # plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3])
         plt.setp(plot01.artists, alpha=1.)
-        plt.ylabel(r"$<Z>$", fontsize=20)
-        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
+        # plt.ylabel(r"$<Z>$", fontsize=20)
+        plt.setp(plot01.get_xticklabels(), visible=False)
         plt.tick_params('both', labelsize='15')
+        plt.text(3.6, 2.2, r"GMM Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         # plt.ylim([-0.2, 1.5])
         # plt.xlim([-1, 2])
         # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
@@ -117,14 +122,16 @@ if __name__ == '__main__':
         plot01.get_yaxis().set_label_coords(-0.05, 0.5)
 
         # Plot02 -------------------------------------------------------------------------------------------------------
-        plt.subplot(3, 1, 2)
+        ax1 = plt.subplot(gs[1], sharex = plot01)
         sns.set_style("white")
-        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[4,1,3,2],
+        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3,4],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
-        plt.ylabel(r"$<t>$", fontsize=20)
+        plt.setp(ax1.get_xticklabels(), visible=False)
+        plt.ylabel(r"$\rm <Z>$", fontsize=30, fontweight='bold')
         # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
         plt.tick_params('both', labelsize='15')
+        plt.text(3.6, 2.2, r"BPT Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         # plt.ylim([-5, 5])
         # plt.xlim([-1, 2])
         # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
@@ -135,14 +142,16 @@ if __name__ == '__main__':
         plot02.get_yaxis().set_label_coords(-0.05, 0.5)
 
         # Plot03 -------------------------------------------------------------------------------------------------------
-        plt.subplot(3, 1, 3)
+        ax2 = plt.subplot(gs[2], sharex = plot01)
         sns.set_style("white")
-        plot03 = sns.boxplot(x=class_whan, y=metallicity_w_mass, order=[4,1,3,2],
+        plot03 = sns.boxplot(x=class_whan, y=metallicity_w_mass, order=[1,2,3,4],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
-        plt.ylabel(r"D$_{\rm n}$4000", fontsize=20)
+        # plt.ylabel(r"$<Z>$", fontsize=20)
         plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
-        plt.tick_params('both', labelsize='15')
+        plt.tick_params('y', labelsize='15')
+        plt.tick_params('x', labelsize='25')
+        plt.text(3.6, 2.2, r"WHAN Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         # plt.ylim([-0.2, 1.5])
         # plt.xlim([-1, 2])
         # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
@@ -152,41 +161,6 @@ if __name__ == '__main__':
         sns.axes_style({'legend.frameon': True})
         plot03.get_yaxis().set_label_coords(-0.05, 0.5)
 
-        # # Plot02 -------------------------------------------------------------------------------------------------------
-        # plt.subplot(3, 1, 2)
-        # sns.set_style("white")
-        # plot02 = sns.boxplot(x=gmm_class, y=age_w_mass, order=[4,1,3,2],
-        #                      palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
-        # plt.setp(plot01.artists, alpha=1.)
-        # plt.ylabel(r"$<t>$", fontsize=20)
-        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
-        # plt.tick_params('both', labelsize='15')
-        # # plt.ylim([-5, 5])
-        # # plt.xlim([-1, 2])
-        # # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
-        # # plot02.set_yscale("log", nonposy='clip')
-        # # sns.despine(left=True)
-        # # plt.savefig('color_e.pdf', format='pdf')
-        # sns.axes_style({'legend.frameon': True})
-        # plot02.get_yaxis().set_label_coords(-0.05, 0.5)
-        #
-        # # Plot03 -------------------------------------------------------------------------------------------------------
-        # plt.subplot(3, 1, 3)
-        # sns.set_style("white")
-        # plot03 = sns.boxplot(x=gmm_class, y=dn4000, order=[4,1,3,2],
-        #                      palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
-        # plt.setp(plot01.artists, alpha=1.)
-        # plt.ylabel(r"D$_{\rm n}$4000", fontsize=20)
-        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
-        # plt.tick_params('both', labelsize='15')
-        # # plt.ylim([-0.2, 1.5])
-        # # plt.xlim([-1, 2])
-        # # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
-        # # plot01.set_yscale("log", nonposy='clip')
-        # # sns.despine(left=True)
-        # # plt.savefig('color_e.pdf', format='pdf')
-        # sns.axes_style({'legend.frameon': True})
-        # plot03.get_yaxis().set_label_coords(-0.05, 0.5)
 
 
     plt.show()
