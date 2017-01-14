@@ -4,7 +4,7 @@
 """
     Boxplot Plot Using Seaborn Package in Python
     @author:  Maria Luiza L. Dantas
-    @date:    2017.01.12
+    @date:    2017.01.13
     @version: 0.0.2
 """
 
@@ -97,70 +97,169 @@ if __name__ == '__main__':
     # plt.show()
 
     with sns.axes_style('white', {'axes.grid': False}):
-
-        fig = plt.figure()
-        gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
+        #
+        # fig = plt.figure()
+        # gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
 
         # Plot01 -------------------------------------------------------------------------------------------------------
 
-        ax0 = plt.subplot(gs[0])
+        # ax0 = plt.subplot(gs[0])
+        plt.subplot(3, 1, 1)
         sns.set_style("white")
         plot01 = sns.boxplot(x=gmm_class, y=metallicity_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
-        # plt.ylabel(r"$<Z>$", fontsize=20)
-        plt.setp(plot01.get_xticklabels(), visible=False)
+        plt.setp(plot01.get_xticklabels(), visible=True)
+        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'],  fontweight='bold')
         plt.tick_params('both', labelsize='15')
-        plt.text(3.6, 2.2, r"GMM Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
-        # plt.ylim([-0.2, 1.5])
-        # plt.xlim([-1, 2])
-        # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
-        # plot01.set_yscale("log", nonposy='clip')
-        # sns.despine(left=True)
-        # plt.savefig('color_e.pdf', format='pdf')
+        plt.text(3.6, 1.4, "GMM", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
         plot01.get_yaxis().set_label_coords(-0.05, 0.5)
 
         # Plot02 -------------------------------------------------------------------------------------------------------
-        ax1 = plt.subplot(gs[1], sharex = plot01)
+        # ax1 = plt.subplot(gs[1], sharex = plot01)
+        plt.subplot(3, 1, 2)
         sns.set_style("white")
-        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3,4],
-                             palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
-        plt.setp(plot01.artists, alpha=1.)
-        plt.setp(ax1.get_xticklabels(), visible=False)
+        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot02.artists, alpha=.8)
+        plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
+        plt.setp(plot01.get_xticklabels(), visible=True)
         plt.ylabel(r"$\rm <Z>$", fontsize=30, fontweight='bold')
-        # plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
         plt.tick_params('both', labelsize='15')
-        plt.text(3.6, 2.2, r"BPT Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
-        # plt.ylim([-5, 5])
-        # plt.xlim([-1, 2])
-        # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
-        # plot02.set_yscale("log", nonposy='clip')
-        # sns.despine(left=True)
-        # plt.savefig('color_e.pdf', format='pdf')
+        plt.text(2.58, 1.4, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
         plot02.get_yaxis().set_label_coords(-0.05, 0.5)
 
         # Plot03 -------------------------------------------------------------------------------------------------------
-        ax2 = plt.subplot(gs[2], sharex = plot01)
+        # ax2 = plt.subplot(gs[2], sharex = plot01)
+        plt.subplot(3, 1, 3)
         sns.set_style("white")
         plot03 = sns.boxplot(x=class_whan, y=metallicity_w_mass, order=[1,2,3,4],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot03.artists, alpha=.8)
+        plt.xticks([0, 1, 2, 3], ['SF', 'sAGN', 'wAGN', 'Retired/Passive'],  fontweight='bold')
+        plt.tick_params('y', labelsize='15')
+        plt.tick_params('x', labelsize='15')
+        plt.text(3.6, 1.4, r"WHAN", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        plt.subplots_adjust(left=0.24, bottom=0.10, right=0.61, top=0.82, hspace=0.20)
+        # plt.savefig('/home/mldantas/Dropbox/Clustering/metallicity.pdf', format='pdf')
+        sns.axes_style({'legend.frameon': True})
+        plot02.get_yaxis().set_label_coords(-0.08, 0.5)
+
+
+    plt.show()
+
+    with sns.axes_style('white', {'axes.grid': False}):
+        #
+        # fig = plt.figure()
+        # gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
+
+        # Plot01 -------------------------------------------------------------------------------------------------------
+
+        # ax0 = plt.subplot(gs[0])
+        plt.subplot(3, 1, 1)
+        sns.set_style("white")
+        plot01 = sns.boxplot(x=gmm_class, y=age_w_mass, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
-        # plt.ylabel(r"$<Z>$", fontsize=20)
-        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'])
-        plt.tick_params('y', labelsize='15')
-        plt.tick_params('x', labelsize='25')
-        plt.text(3.6, 2.2, r"WHAN Classification", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
-        # plt.ylim([-0.2, 1.5])
-        # plt.xlim([-1, 2])
-        # plt.subplots_adjust(left=0.25, bottom=0.2, right=0.9, top=0.75)
-        # plot01.set_yscale("log", nonposy='clip')
-        # sns.despine(left=True)
-        # plt.savefig('color_e.pdf', format='pdf')
+        plt.setp(plot01.get_xticklabels(), visible=True)
+        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'],  fontweight='bold')
+        plt.tick_params('both', labelsize='15')
+        plt.text(3.6, 9.8, "GMM", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
-        plot03.get_yaxis().set_label_coords(-0.05, 0.5)
+        plot01.get_yaxis().set_label_coords(-0.05, 0.5)
+        plt.ylim([9.0, 10.5])
 
+        # Plot02 -------------------------------------------------------------------------------------------------------
+        # ax1 = plt.subplot(gs[1], sharex = plot01)
+        plt.subplot(3, 1, 2)
+        sns.set_style("white")
+        plot02 = sns.boxplot(x=class_bpt, y=age_w_mass, order=[1,2,3],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot02.artists, alpha=.8)
+        plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
+        plt.setp(plot01.get_xticklabels(), visible=True)
+        plt.ylabel(r"Age", fontsize=25)
+        plt.tick_params('both', labelsize='15')
+        plt.text(2.58, 9.8, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        sns.axes_style({'legend.frameon': True})
+        # plot02.set_yscale("log", nonposy='clip')
+        plt.ylim([9.0, 10.5])
+
+        # Plot03 -------------------------------------------------------------------------------------------------------
+        # ax2 = plt.subplot(gs[2], sharex = plot01)
+        plt.subplot(3, 1, 3)
+        sns.set_style("white")
+        plot03 = sns.boxplot(x=class_whan, y=age_w_mass, order=[1,2,3,4],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot03.artists, alpha=.8)
+        plt.xticks([0, 1, 2, 3], ['SF', 'sAGN', 'wAGN', 'Retired/Passive'],  fontweight='bold')
+        plt.tick_params('y', labelsize='15')
+        plt.tick_params('x', labelsize='15')
+        plt.text(3.6, 9.8, r"WHAN", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        plt.subplots_adjust(left=0.24, bottom=0.10, right=0.61, top=0.82, hspace=0.20)
+        # plt.savefig('/home/mldantas/Dropbox/Clustering/age.pdf', format='pdf')
+        sns.axes_style({'legend.frameon': True})
+        plot02.get_yaxis().set_label_coords(-0.1, 0.5)
+        plt.ylim([9., 10.5])
+
+
+    plt.show()
+
+    with sns.axes_style('white', {'axes.grid': False}):
+        #
+        # fig = plt.figure()
+        # gs = gridspec.GridSpec(3, 1, height_ratios=[1, 1, 1])
+
+        # Plot01 -------------------------------------------------------------------------------------------------------
+
+        # ax0 = plt.subplot(gs[0])
+        plt.subplot(3, 1, 1)
+        sns.set_style("white")
+        plot01 = sns.boxplot(x=gmm_class, y=dn4000, order=[4,1,3,2],
+                             palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
+        plt.setp(plot01.artists, alpha=1.)
+        plt.setp(plot01.get_xticklabels(), visible=True)
+        plt.xticks([0, 1, 2, 3], ['Group 4', 'Group 1', 'Group 3', 'Group 2'],  fontweight='bold')
+        plt.tick_params('both', labelsize='15')
+        plt.text(3.6, 1.8, "GMM", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        sns.axes_style({'legend.frameon': True})
+        plot01.get_yaxis().set_label_coords(-0.05, 0.5)
+        # plt.ylim([9.0, 10.5])
+
+        # Plot02 -------------------------------------------------------------------------------------------------------
+        # ax1 = plt.subplot(gs[1], sharex = plot01)
+        plt.subplot(3, 1, 2)
+        sns.set_style("white")
+        plot02 = sns.boxplot(x=class_bpt, y=dn4000, order=[1,2,3],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot02.artists, alpha=.8)
+        plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
+        plt.setp(plot01.get_xticklabels(), visible=True)
+        plt.ylabel(r"$\rm D_n 4000$", fontsize=25)
+        plt.tick_params('both', labelsize='15')
+        plt.text(2.58, 1.8, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        sns.axes_style({'legend.frameon': True})
+        # plot02.set_yscale("log", nonposy='clip')
+        # plt.ylim([9.0, 10.5])
+
+        # Plot03 -------------------------------------------------------------------------------------------------------
+        # ax2 = plt.subplot(gs[2], sharex = plot01)
+        plt.subplot(3, 1, 3)
+        sns.set_style("white")
+        plot03 = sns.boxplot(x=class_whan, y=dn4000, order=[1,2,3,4],
+                             palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
+        plt.setp(plot03.artists, alpha=.8)
+        plt.xticks([0, 1, 2, 3], ['SF', 'sAGN', 'wAGN', 'Retired/Passive'],  fontweight='bold')
+        plt.tick_params('y', labelsize='15')
+        plt.tick_params('x', labelsize='15')
+        plt.text(3.6, 1.8, r"WHAN", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
+        plt.subplots_adjust(left=0.24, bottom=0.10, right=0.61, top=0.82, hspace=0.20)
+        # plt.savefig('/home/mldantas/Dropbox/Clustering/age.pdf', format='pdf')
+        sns.axes_style({'legend.frameon': True})
+        plot02.get_yaxis().set_label_coords(-0.07, 0.5)
+        # plt.ylim([9., 10.5])
 
 
     plt.show()
