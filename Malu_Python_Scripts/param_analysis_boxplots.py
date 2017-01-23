@@ -36,7 +36,6 @@ if __name__ == '__main__':
     # Reading the files which contain the data -------------------------------------------------------------------------
     my_data = np.loadtxt('/home/mldantas/Dropbox/Clustering/clustering_starlight_analysis.csv', delimiter=',',
                          dtype=str)
-
     my_dictionary = {}
     for i in range(len(my_data[0, :])):                                         # Converting numpy array into dictionary
         my_dictionary[my_data[0, i]] = np.array(my_data[0 + 1:, i], dtype=str)
@@ -66,6 +65,14 @@ if __name__ == '__main__':
     dn4000             = my_dictionary['dn4000_synth'].astype(float)
     class_whan         = my_dictionary['class_whan'].astype(int)
     class_bpt          = my_dictionary['class_bpt'].astype(int)
+
+    # index_gmm_1 = np.where(gmm_class == 1)
+    # index_gmm_2 = np.where(gmm_class == 2)
+    # index_gmm_3 = np.where(gmm_class == 3)
+    # index_gmm_4 = np.where(gmm_class == 4)
+    #
+    # print (metallicity_w_flux[index_gmm_1].describe())
+    # exit()
 
     std_metallicity_flux = standardization(metallicity_w_flux)
     std_metallicity_mass = standardization(metallicity_w_mass)
@@ -106,7 +113,7 @@ if __name__ == '__main__':
         # ax0 = plt.subplot(gs[0])
         plt.subplot(3, 1, 1)
         sns.set_style("white")
-        plot01 = sns.boxplot(x=gmm_class, y=metallicity_w_mass, order=[4,1,3,2],
+        plot01 = sns.boxplot(x=gmm_class, y=metallicity_w_flux, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
         plt.setp(plot01.get_xticklabels(), visible=True)
@@ -120,12 +127,12 @@ if __name__ == '__main__':
         # ax1 = plt.subplot(gs[1], sharex = plot01)
         plt.subplot(3, 1, 2)
         sns.set_style("white")
-        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_mass, order=[1,2,3],
+        plot02 = sns.boxplot(x=class_bpt, y=metallicity_w_flux, order=[1,2,3],
                              palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
         plt.setp(plot02.artists, alpha=.8)
         plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
         plt.setp(plot01.get_xticklabels(), visible=True)
-        plt.ylabel(r"$\rm <Z>$", fontsize=30, fontweight='bold')
+        plt.ylabel(r"$\rm <Z>_{L}$", fontsize=30, fontweight='bold')
         plt.tick_params('both', labelsize='15')
         plt.text(2.58, 1.4, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
@@ -135,7 +142,7 @@ if __name__ == '__main__':
         # ax2 = plt.subplot(gs[2], sharex = plot01)
         plt.subplot(3, 1, 3)
         sns.set_style("white")
-        plot03 = sns.boxplot(x=class_whan, y=metallicity_w_mass, order=[1,2,3,4],
+        plot03 = sns.boxplot(x=class_whan, y=metallicity_w_flux, order=[1,2,3,4],
                              palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
         plt.setp(plot03.artists, alpha=.8)
         plt.xticks([0, 1, 2, 3], ['SF', 'sAGN', 'wAGN', 'Retired/Passive'],  fontweight='bold')
@@ -160,7 +167,7 @@ if __name__ == '__main__':
         # ax0 = plt.subplot(gs[0])
         plt.subplot(3, 1, 1)
         sns.set_style("white")
-        plot01 = sns.boxplot(x=gmm_class, y=age_w_mass, order=[4,1,3,2],
+        plot01 = sns.boxplot(x=gmm_class, y=age_w_flux, order=[4,1,3,2],
                              palette={1: "#e78ac3", 2: "#66c2a5", 3: "#8da0cb", 4: "#fc8d62"}, notch=True)
         plt.setp(plot01.artists, alpha=1.)
         plt.setp(plot01.get_xticklabels(), visible=True)
@@ -175,12 +182,12 @@ if __name__ == '__main__':
         # ax1 = plt.subplot(gs[1], sharex = plot01)
         plt.subplot(3, 1, 2)
         sns.set_style("white")
-        plot02 = sns.boxplot(x=class_bpt, y=age_w_mass, order=[1,2,3],
+        plot02 = sns.boxplot(x=class_bpt, y=age_w_flux, order=[1,2,3],
                              palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
         plt.setp(plot02.artists, alpha=.8)
         plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
         plt.setp(plot01.get_xticklabels(), visible=True)
-        plt.ylabel(r"Age", fontsize=25)
+        plt.ylabel(r"$\rm <\log(t)>_{L}$", fontsize=25)
         plt.tick_params('both', labelsize='15')
         plt.text(2.58, 9.8, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
@@ -191,7 +198,7 @@ if __name__ == '__main__':
         # ax2 = plt.subplot(gs[2], sharex = plot01)
         plt.subplot(3, 1, 3)
         sns.set_style("white")
-        plot03 = sns.boxplot(x=class_whan, y=age_w_mass, order=[1,2,3,4],
+        plot03 = sns.boxplot(x=class_whan, y=age_w_flux, order=[1,2,3,4],
                              palette={1: "gray", 2: "gray", 3: "gray", 4: "gray"}, notch=True)
         plt.setp(plot03.artists, alpha=.8)
         plt.xticks([0, 1, 2, 3], ['SF', 'sAGN', 'wAGN', 'Retired/Passive'],  fontweight='bold')
