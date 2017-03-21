@@ -2,7 +2,7 @@
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
 require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
 library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);
-require(rgl);library(spatstat);library("gridExtra")
+require(rgl);library(spatstat);library(gridExtra)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 source("gg_ellipse.R")
 source("plot_BPT.R")
@@ -17,7 +17,11 @@ set.seed(42)
 
 Dat <- read.csv("..//Dataset/Class_WHAN_BPT_D4.csv",header=T)
 AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
-yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
+yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)   
+
+
+
+
 
 # Subsampling for testing, not necessary in the final run
 #test_index <- sample(seq_len(nrow(AGN)),replace=F, size = 10000)
@@ -44,6 +48,7 @@ CLUST4 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_sh
 Dat$GMM_class_4 <- CLUST4$classification
 dat2 <-data.frame(AGN_short,Dat[,c(1,2,3,4,5,11,12,13,14,15)])
 write.csv(dat2,"..//Dataset/data_with_GMM_4.csv",row.names=F)
+
 
 # Export data for post-processing
 

@@ -43,7 +43,7 @@ index <- sample(seq_len(nrow(gdata)),replace = F, size = size)
     xlab(expression(paste('log [NII]/H', alpha))) +
     ylab(expression(paste('log [OIII]/H', beta))) +
     #  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
-        geom_point(data=gdata[index,],aes(x=x,y=y),color="#11111130",size=1.2)+
+#      geom_point(data=gdata[index,],aes(x=x,y=y),color="#11111130",size=1.2)+
     scale_colour_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"))+ 
     scale_fill_manual(values=c("#FF1493", "#7FFF00","#00BFFF", "#FF8C00"))+
 #    scale_linetype_stata()+
@@ -55,7 +55,7 @@ index <- sample(seq_len(nrow(gdata)),replace = F, size = size)
     
     geom_polygon(data=El_BPT68,aes(x=xval,y=yval,group=classification,color=classification,
                                    fill=classification
-    ),size=1.1,alpha=0.1)+
+    ),size=1.1,alpha=0.35)+
     theme_bw() + 
     geom_line(aes(x=xx,y=Ka),data=gKa,size=1.25,linetype="dashed",color="gray25")+
     geom_line(aes(x=xx1,y=Ke),data=gKe,size=1.25,linetype="dotted",color="gray25")+

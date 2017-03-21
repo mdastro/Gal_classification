@@ -5,7 +5,7 @@ library(plyr)
 library(gridExtra)
 library(circlize)
 
-Dat <- read.csv("..//Dataset/Class_WHAN_BPT_D4.csv",header=T)
+Dat <- read.csv("..//Dataset/class_WHAN_BPT_D4.csv",header=T)
 AGN <- data.table(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
                   yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
 
@@ -46,8 +46,8 @@ fit<- ExClVal(class2,clust,data=data2)
 bptggclust <- c()
 for (i in 1:4){
   for (j in 1:3){ 
- bptggclust <- rbind(bptggclust,data.frame(x=fit0$pdfCluster[[i,j]]$x,y=fit0$pdfCluster[[i,j]]$y,classc = paste("G",i,"/",levels(class)[j],sep=""),
-                                           class = paste("G",i,sep="") ))
+ bptggclust <- rbind(bptggclust,data.frame(x=fit0$pdfCluster[[i,j]]$x,y=fit0$pdfCluster[[i,j]]$y,classc = paste("GC",i,"/",levels(class)[j],sep=""),
+                                           class = paste("GC",i,sep="") ))
   }
 }
 
@@ -56,7 +56,7 @@ bptggclust$cc <- rep("clust",nrow(bptggclust))
 bptggclass <- c()
 for (i in 1:4){
   for (j in 1:3){ 
-  bptggclass  <- rbind(bptggclass ,data.frame(x=fit0$pdfClass[[i,j]]$x,y=fit0$pdfClass[[i,j]]$y,classc = paste("G",i,"/",levels(class)[j],sep=""),
+  bptggclass  <- rbind(bptggclass ,data.frame(x=fit0$pdfClass[[i,j]]$x,y=fit0$pdfClass[[i,j]]$y,classc = paste("GC",i,"/",levels(class)[j],sep=""),
                                               class = levels(class)[j]))
 }
 }
@@ -64,8 +64,8 @@ bptggclass$cc <- rep("class",nrow(bptggclass))
 gg_bpt_all<-rbind(bptggclust,bptggclass)
 gg_bpt_all$cc <- as.factor(gg_bpt_all$cc)
 gg_bpt_all$classc <- factor(gg_bpt_all$classc,
-levels = c("G1/SF","G2/SF","G3/SF","G4/SF","G1/Composite","G2/Composite","G3/Composite","G4/Composite","G1/AGN",               
- "G2/AGN","G3/AGN", "G4/AGN"))
+levels = c("GC1/SF","GC2/SF","GC3/SF","GC4/SF","GC1/Composite","GC2/Composite","GC3/Composite","GC4/Composite","GC1/AGN",               
+ "GC2/AGN","GC3/AGN", "GC4/AGN"))
 
 pdf("mosaic_bpt.pdf",width = 7,height = 6)
 ggplot(
@@ -90,8 +90,8 @@ dev.off()
 whanggclust <- c()
 for (i in 1:4){
   for (j in 1:4){ 
-    whanggclust <- rbind(whanggclust,data.frame(x=fit$pdfCluster[[i,j]]$x,y=fit$pdfCluster[[i,j]]$y,classc = paste("G",i,"/",levels(class2)[j],sep=""),
-                                              class = paste("G",i,sep="") ))
+    whanggclust <- rbind(whanggclust,data.frame(x=fit$pdfCluster[[i,j]]$x,y=fit$pdfCluster[[i,j]]$y,classc = paste("GC",i,"/",levels(class2)[j],sep=""),
+                                              class = paste("GC",i,sep="") ))
   }
 }
 
@@ -100,7 +100,7 @@ whanggclust$cc <- rep("clust",nrow(whanggclust))
 whanggclass <- c()
 for (i in 1:4){
   for (j in 1:4){ 
-    whanggclass  <- rbind(whanggclass ,data.frame(x=fit$pdfClass[[i,j]]$x,y=fit$pdfClass[[i,j]]$y,classc = paste("G",i,"/",levels(class2)[j],sep=""),
+    whanggclass  <- rbind(whanggclass ,data.frame(x=fit$pdfClass[[i,j]]$x,y=fit$pdfClass[[i,j]]$y,classc = paste("GC",i,"/",levels(class2)[j],sep=""),
                                                 class = levels(class2)[j]))
   }
 }
@@ -108,10 +108,10 @@ whanggclass$cc <- rep("class",nrow(whanggclass))
 gg_whan_all<-rbind(whanggclust,whanggclass)
 gg_whan_all$cc <- as.factor(gg_whan_all$cc)
 gg_whan_all$classc <- factor(gg_whan_all$classc,
-                            levels = c("G1/SF","G2/SF","G3/SF","G4/SF","G1/sAGN","G2/sAGN","G3/sAGN","G4/sAGN","G1/wAGN",               
-                                       "G2/wAGN","G3/wAGN", "G4/wAGN",
-                                       "G1/retired",               
-                                       "G2/retired","G3/retired", "G4/retired"))
+                            levels = c("GC1/SF","GC2/SF","GC3/SF","GC4/SF","GC1/sAGN","GC2/sAGN","GC3/sAGN","GC4/sAGN","GC1/wAGN",               
+                                       "GC2/wAGN","GC3/wAGN", "GC4/wAGN",
+                                       "GC1/retired",               
+                                       "GC2/retired","GC3/retired", "GC4/retired"))
 
 pdf("mosaic_whan.pdf",width = 7,height = 8)
 ggplot(
@@ -135,8 +135,9 @@ dev.off()
 
 ## Chord Diagram
 
-bbb<-1-fit0$KL
+bbb<-1-round(fit0$KL,3)
 bbb[bbb<=0.93]<-0
+rownames(bbb) <-c("GC1","GC2","GC3","GC4")
 
 pdf("Figs/chord_bpt.pdf",width = 5,height = 5)
 chordDiagram(bbb,directional = 1,
@@ -145,8 +146,9 @@ chordDiagram(bbb,directional = 1,
                         "gray","gray","gray"))
 dev.off()
 
-www<-1-fit$KL
+www<-1-round(fit$KL,3)
 www[www<=0.95]<-0
+rownames(www) <-c("GC1","GC2","GC3","GC4")
 pdf("Figs/chord_whan.pdf",width = 5,height = 5)
 chordDiagram(www,directional = 1,row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"),
              grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
@@ -155,4 +157,3 @@ dev.off()
 
 
 
-\
