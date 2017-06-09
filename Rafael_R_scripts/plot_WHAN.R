@@ -22,8 +22,8 @@ gg<-ggplot(data=gdata,aes(x=x,y=z))+
   xlab(expression(paste('log [NII]/H', alpha))) +
   ylab(expression(paste('log EW(H', alpha, ')'))) +
 #  geom_point(data=gdata[index,],aes(x=x,y=z),color="#11111130",size=1.2)+
-  scale_colour_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"))+ 
-  scale_fill_manual(values=c("#FF1493", "#7FFF00","#00BFFF", "#FF8C00"))+
+  scale_colour_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","brown","#8E9CA3"))+ 
+  scale_fill_manual(values=c("#FF1493", "#7FFF00","#00BFFF", "#FF8C00","brown","#8E9CA3"))+
   geom_polygon(data=El_WHAN95,aes(x=xval,y=yval,group=classification,
                                  color=classification,fill=classification),
                size=1.1,alpha=0.25)+

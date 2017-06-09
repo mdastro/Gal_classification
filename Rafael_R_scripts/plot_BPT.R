@@ -44,8 +44,8 @@ index <- sample(seq_len(nrow(gdata)),replace = F, size = size)
     ylab(expression(paste('log [OIII]/H', beta))) +
     #  stat_ellipse(type="norm",geom = "polygon", alpha = 1/2,aes(group=type,fill=type),level = 0.997)+
 #      geom_point(data=gdata[index,],aes(x=x,y=y),color="#11111130",size=1.2)+
-    scale_colour_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"))+ 
-    scale_fill_manual(values=c("#FF1493", "#7FFF00","#00BFFF", "#FF8C00"))+
+    scale_colour_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","brown","#8E9CA3"))+ 
+    scale_fill_manual(values=c("#FF1493", "#7FFF00","#00BFFF", "#FF8C00","brown","#8E9CA3"))+
 #    scale_linetype_stata()+
     # geom_path(data=El_BPT99,aes(x=xval,y=yval,group=classification,color=classification
     #                                 ),size=1)+

@@ -4,9 +4,10 @@ require(reshape2)
 library(plyr)
 library(gridExtra)
 library(circlize)
-
+require(data.table)
+source("ExClVal.R")
 Dat <- read.csv("..//Dataset/class_WHAN_BPT_D4.csv",header=T)
-AGN <- data.table(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
+AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
                   yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
 
 
@@ -76,11 +77,13 @@ ggplot(
   scale_fill_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","gray80","gray80","gray80"
                                ))+
   scale_y_continuous(breaks=pretty_breaks())+
+  scale_x_continuous(breaks=c(-7.5,0,7.5))+
   theme(legend.position = "none",plot.title = element_text(hjust=0.5),
         axis.title.y=element_text(vjust=0.75),
         axis.title.x=element_text(vjust=-0.25),
         text = element_text(size=18))+xlab("LD1")+ylab("Density")+
-  facet_wrap(~classc,ncol=4,nrow=3)
+  facet_wrap(~classc,ncol=4,nrow=3)+
+  coord_cartesian(xlim=c(-8,8.5))
 dev.off()
 
 
@@ -122,11 +125,13 @@ ggplot(
   scale_fill_manual(values=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","gray80","gray80","gray80","gray80"
   ))+
   scale_y_continuous(breaks=pretty_breaks())+
+  scale_x_continuous(breaks=c(-7.5,0,7.5))+
   theme(legend.position = "none",plot.title = element_text(hjust=0.5),
         axis.title.y=element_text(vjust=0.75),
         axis.title.x=element_text(vjust=-0.25),
         text = element_text(size=18))+xlab("LD1")+ylab("Density")+
-  facet_wrap(~classc,ncol=4,nrow=4)
+  facet_wrap(~classc,ncol=4,nrow=4)+
+  coord_cartesian(xlim=c(-8,8))
 dev.off()
 
 

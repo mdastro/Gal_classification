@@ -15,7 +15,7 @@ set.seed(42)
 #colnames(AGN)<-c("id", "xx_BPT", "yy_BPT", "class_BPT", "xx_WHAN",
 #                         "yy_WHAN", "EW_NII_WHAN", "class_WHAN")
 
-Dat <- read.csv("..//Dataset/Class_WHAN_BPT_D4.csv",header=T)
+Dat <- read.csv("..//Dataset/class_WHAN_BPT_D4.csv",header=T)
 AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
 yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)   
 
@@ -48,6 +48,16 @@ CLUST4 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_sh
 Dat$GMM_class_4 <- CLUST4$classification
 dat2 <-data.frame(AGN_short,Dat[,c(1,2,3,4,5,11,12,13,14,15)])
 write.csv(dat2,"..//Dataset/data_with_GMM_4.csv",row.names=F)
+
+
+
+test_index <- sample(seq_len(nrow(AGN_short)),replace=F, size = 10000)
+tagn <- teigen(AGN_short[test_index,], models="UUUU", Gs=4, init="soft",eps=c(0.001, 0.5))
+plot(tagn,what = "contour")
+summary(tagn)
+
+plot(AGN_short[,1:2],col=CLUST4$classification)
+
 
 
 # Export data for post-processing
@@ -448,16 +458,16 @@ label.font.size <- 2
 grid.lwd        <- 3
 
 #mypal = pal_npg("nrc", alpha = 0.7)(4)
-mypal = c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00")
+mypal = c("cyan3" ,"magenta","orange","green2")
 
 group.col <- mypal
 source("rgl_add_axes.R")
-#plot3d(x,y, z,  box = F,
-#       type ="p", size=0.01,alpha=0.1,xlab = "EWHa", ylab = "LogNII_Ha", 
-#       zlab = "LogOIII_Hb",col="gray90")
 plot3d(x,y, z,  box = F,
-              type ="p", size=0.01,alpha=0.1,xlab = "x", ylab = "y", 
-              zlab = "z",col="gray90",cex=2)
+       type ="p", size=0.01,alpha=0.1,xlab = "EWHa", ylab = "LogNII_Ha", 
+       zlab = "LogOIII_Hb",col="gray90",cex=2)
+#plot3d(x,y, z,  box = F,
+#              type ="p", size=0.01,alpha=0.1,xlab = "x", ylab = "y", 
+#              zlab = "z",col="gray90",cex=2)
 # Add bounding box decoration
 #rgl.bbox(color=c("gray90","black"),  shininess=3, alpha=0.8, nticks = 3 ) 
 #rgl_add_axes(x, y, z, show.bbox = FALSE)
@@ -510,7 +520,8 @@ scatter3D_fancy <- function(x, y, z,..., colvar = z,col=col,colkey=colkey,pch=".
 }
 
 
-scatter3D_fancy(x, y, z,colvar = as.integer(CLUST$classification),col = c("#D46A6A","#D4B16A","#764B8E"),
+colvar0 = as.integer(CLUST_b$classification[index])
+scatter3D_fancy(x, y, z,colvar = colvar0,col=c("cyan3" ,"magenta","orange","green2"),
                 colkey=F,
                 box = T,ticktype = "detailed",theta=40,phi=20,
                 zlab = "LogOIII_Hb",ylab="LogNII_Ha", d=20,
