@@ -6,7 +6,7 @@ library(gridExtra)
 library(circlize)
 require(data.table)
 source("ExClVal.R")
-Dat <- read.csv("..//Dataset/class_WHAN_BPT_D4.csv",header=T)
+Dat <- read.csv("..//Dataset/class_WHAN_BPT_D5.csv",header=T)
 AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
                   yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)                 
 
@@ -19,19 +19,28 @@ AGN_short <- AGN[,c("xx_BPT", "yy_BPT","yy_WHAN")]
 set.seed(42)
 CLUST4 <- Mclust(AGN_short,G = 4,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
                  modelName = "VVV")#Initialization with 1000 for higher speed
+
+set.seed(42)
+CLUST5 <- Mclust(AGN_short,G = 5,initialization=list(subset=sample(1:nrow(AGN_short), size=1000)),
+                 modelName = "VVV")#Initialization with 1000 for higher speed
+
+
 Dat$BPT_name = as.factor(Dat$class_BPT)
+Dat$BPT_name4 = as.factor(Dat$class_BPT4)
+
 Dat$WHAN_name = as.factor(Dat$class_WHAN)
 #class BPT: (no class, SF, composite, AGN) = (0, 1, 2, 3)
 # class WHAN: (no class, SF, sAGN, wAGN, retired, passive) = (0, 1, 2, 3, 4, 5) 
 Dat$BPT_name <- revalue(Dat$BPT_name, c("1"="SF","2"="Composite","3"="AGN") )
+Dat$BPT_name4 <-revalue(Dat$BPT_name4, c("1"="SF","2"="Composite","3"="AGN","4"="LINERs") )
 
 Dat$WHAN_name <- revalue(Dat$WHAN_name, c("1"="SF","2"="sAGN","3"="wAGN","4"="retired") )
 
 
 # Plotting the clustering results
-clust<-CLUST4
+clust<-CLUST5
 
-class<-Dat$BPT_name
+class<-Dat$BPT_name4
 data <- AGN_short[,1:2]
 
 class2<-Dat$WHAN_name
@@ -142,21 +151,22 @@ dev.off()
 
 bbb<-1-round(fit0$KL,3)
 bbb[bbb<=0.93]<-0
-rownames(bbb) <-c("GC1","GC2","GC3","GC4")
+rownames(bbb) <-c("GC1","GC2","GC3","GC4","GC5")
 
-pdf("Figs/chord_bpt.pdf",width = 5,height = 5)
+pdf("Figs/chord_bpt5.pdf",width = 5,height = 5)
 chordDiagram(bbb,directional = 1,
-             row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"),
-             grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
-                        "gray","gray","gray"))
+             row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","brown"),
+             grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","brown",
+                        "gray","gray","gray","gray"))
 dev.off()
 
 www<-1-round(fit$KL,3)
-www[www<=0.95]<-0
-rownames(www) <-c("GC1","GC2","GC3","GC4")
-pdf("Figs/chord_whan.pdf",width = 5,height = 5)
-chordDiagram(www,directional = 1,row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00"),
-             grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
+www[www<=0.93]<-0
+rownames(www) <-c("GC1","GC2","GC3","GC4","GC5")
+pdf("Figs/chord_whan5.pdf",width = 5,height = 5)
+chordDiagram(www,directional = 1,row.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00",
+                                           "brown"),
+             grid.col=c("#FF1493","#7FFF00", "#00BFFF", "#FF8C00","brown",
                         "gray","gray","gray","gray"))
 dev.off()
 

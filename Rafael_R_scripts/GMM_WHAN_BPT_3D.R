@@ -2,7 +2,7 @@
 library(e1071);require(mclust);library(RColorBrewer);require(ggthemes);
 require(ggpubr);require(ggplot2);require(plotly);require(MASS);require(cluster)
 library(fpc);library(plyr);library(reshape);require(ggsci);require(plot3D);
-require(rgl);library(spatstat);library(gridExtra)
+require(rgl);library(spatstat);library(gridExtra);require(magrittr)
 #----------------------------------------------------------------##----------------------------------------------------------------#
 source("gg_ellipse.R")
 source("plot_BPT.R")
@@ -19,6 +19,19 @@ Dat <- read.csv("..//Dataset/class_WHAN_BPT_D4.csv",header=T)
 AGN <- data.frame(xx_BPT = log(Dat$NII/Dat$H_alpha,10),yy_BPT = log(Dat$OIII/Dat$H_beta,10),
 yy_WHAN = log(Dat$EW_H_alpha,10), dn4000_obs = Dat$dn4000_obs, dn4000_synth = Dat$dn4000_synth)   
 
+
+AGN$class_BPT4 <- Dat$class_BPT 
+AGN$class_BPT <- Dat$class_BPT 
+
+
+index <- AGN$yy_BPT > 0.61 / (AGN$xx_BPT - 0.47) + 1.19 & AGN$yy_BPT < 1.05 * AGN$xx_BPT + 0.45   
+
+  AGN$class_BPT4[index] <- 4
+  plot(AGN$xx_BPT,AGN$yy_BPT,col=AGN$class_BPT4) 
+  
+  Dat$class_BPT4 <- AGN$class_BPT4
+  write.csv(Dat,"..//Dataset/class_WHAN_BPT_D5.csv")
+  
 
 
 
