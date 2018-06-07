@@ -133,7 +133,7 @@ if __name__ == '__main__':
         plt.setp(plot02.artists, alpha=.8)
         plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
         plt.setp(plot01.get_xticklabels(), visible=True)
-        plt.ylabel(r"$\rm <Z/Z_{\odot}>_{L}$", fontsize=30, fontweight='bold')
+        plt.ylabel(r"$\rm \langle Z/Z_{\odot} \rangle _{L}$", fontsize=20, fontweight='bold')
         plt.tick_params('both', labelsize='15')
         plt.text(2.58, 1.4, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
@@ -191,7 +191,7 @@ if __name__ == '__main__':
         plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
         plt.yticks(np.arange(9, 10.6, 0.3))
         plt.setp(plot01.get_xticklabels(), visible=True)
-        plt.ylabel(r"$\rm <\log(t)>_{L}$", fontsize=25)
+        plt.ylabel(r"$\rm \langle \log(t/yr) \rangle _{L}$", fontsize=20)
         plt.tick_params('both', labelsize='15')
         plt.text(2.58, 9.8, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
@@ -213,7 +213,7 @@ if __name__ == '__main__':
         plt.subplots_adjust(left=0.24, bottom=0.10, right=0.61, top=0.82, hspace=0.20)
         # plt.savefig('/home/mldantas/Dropbox/Clustering/age.pdf', format='pdf')
         sns.axes_style({'legend.frameon': True})
-        plot02.get_yaxis().set_label_coords(-0.1, 0.5)
+        plot02.get_yaxis().set_label_coords(-0.11, 0.5)
         plt.ylim([9., 10.5])
 
     plt.show()
@@ -238,7 +238,7 @@ if __name__ == '__main__':
         plt.tick_params('both', labelsize='15')
         plt.text(3.6, 1.8, "GMM", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
-        plot01.get_yaxis().set_label_coords(-0.05, 0.5)
+        plot01.get_yaxis().set_label_coords(-0.10, 0.5)
         # plt.ylim([9.0, 10.5])
 
         # Plot02 -------------------------------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ if __name__ == '__main__':
         plt.xticks([0, 1, 2], ['SF', 'Composite', 'AGN'],  fontweight='bold')
         plt.yticks(np.arange(1, 2.6, 0.3))
         plt.setp(plot01.get_xticklabels(), visible=True)
-        plt.ylabel(r"$\rm D_n 4000$", fontsize=25)
+        plt.ylabel(r"$\rm D_n 4000$", fontsize=20)
         plt.tick_params('both', labelsize='15')
         plt.text(2.58, 1.8, r"BPT", rotation=-90, horizontalalignment='center', fontsize = 15, fontweight='bold')
         sns.axes_style({'legend.frameon': True})
@@ -273,7 +273,7 @@ if __name__ == '__main__':
         plt.subplots_adjust(left=0.24, bottom=0.10, right=0.61, top=0.82, hspace=0.20)
         # plt.savefig('/home/mldantas/Dropbox/Clustering/age.pdf', format='pdf')
         sns.axes_style({'legend.frameon': True})
-        plot02.get_yaxis().set_label_coords(-0.07, 0.5)
+        plot02.get_yaxis().set_label_coords(-0.09, 0.5)
         # plt.ylim([9., 10.5])
 
 
